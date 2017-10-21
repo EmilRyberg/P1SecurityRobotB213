@@ -5,10 +5,10 @@
 void bumperCallback(const kobuki_msgs::BumperEventConstPtr& event);
 void avoidObstacle(ros::Publisher vel_pub);
 
-int bumperState = 0;
+int bumper_state = 0;
 bool rotating = false;
 ros::Rate *loop_rate_ptr;
-geometry_msgs::Twist twistMsg;
+geometry_msgs::Twist twist_msg;
 
 int main(int argc, char *argv[]) {
 	ros::init(argc, argv, "navigation_master");
@@ -19,18 +19,19 @@ int main(int argc, char *argv[]) {
 	loop_rate_ptr = &loop_rate;
 
     ros::Publisher vel_pub = nh.advertise<geometry_msgs::Twist>("cmd_vel_mux/input/navi", 1);
-	twistMsg.linear.x = 0.0;
-    twistMsg.angular.z = 0.0;
+	twist_msg.linear.x = 0.0;
+    twist_msg.angular.z = 0.0;
     
     ros::Subscriber bumper_sub = nh.subscribe("mobile_base/events/bumper", 1000, bumperCallback);
 
 	while(ros::ok())
 	{
 		ros::spinOnce();
-		if(bumperState == 0)
+
+		if(bumper_state == 0)
 		{
-			twistMsg.angular.z = 0.0;
-			twistMsg.linear.x = 0.5;
+			twist_msg.angular.z = 0.0;
+			twist_msg.linear.x = 0.5;
 		}
 		else
 		{
@@ -48,31 +49,31 @@ int main(int argc, char *argv[]) {
 void bumperCallback(const kobuki_msgs::BumperEventConstPtr& event)
 {
 	ROS_INFO("Got bumper callback");
-	bumperState = event->state;
+	bumper_state = event->state;
 }
 
 void avoidObstacle(ros::Publisher vel_pub)
 {
 	ROS_INFO("Avoiding obstacle");
-	int actionCountdown = 25;
-	while(actionCountdown > 0)
+	int action_countdown = 25;
+	while(action_countdown > 0)
 	{
 		ROS_INFO("Going backwards");
-		twistMsg.linear.x = -0.2;
-		twistMsg.angular.z = 0.0;
-		actionCountdown--;
+		twist_msg.linear.x = -0.2;
+		twist_msg.angular.z = 0.0;
+		action_countdown--;
 		vel_pub.publish(twistMsg);
 		loop_rate_ptr->sleep();
 	}
-	actionCountdown = 50;
-	twistMsg.linear.x = 0.0;
+	action_countdown = 50;
+	twist_msg.linear.x = 0.0;
 
-	while(actionCountdown > 0)
+	while(action_countdown > 0)
 	{
 		ROS_INFO("Turning");
-		twistMsg.linear.x = 0.0;
-		twistMsg.angular.z = 0.4;
-		actionCountdown--;
+		twist_msg.linear.x = 0.0;
+		twist_msg.angular.z = 0.4;
+		action_countdown--;
 		vel_pub.publish(twistMsg);
 		loop_rate_ptr->sleep();
 	}
