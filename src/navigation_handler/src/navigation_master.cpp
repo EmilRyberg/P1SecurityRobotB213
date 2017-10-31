@@ -79,12 +79,16 @@ int main(int argc, char *argv[]) {
         char response[1024];
         memset(response, '\0', sizeof response);
 
-		int tmp = 1;
-		while (buf != '\r' && n > 0 || tmp==1) {
-                n = read( USB, &buf, 1 );
-                sprintf( &response[spot], "%c", buf );
-                spot += n;
-				tmp = 0;
+		bool got_message = false;
+		while (!got_message) {
+			n = read( USB, &buf, 1 );
+			sprintf( &response[spot], "%c", buf );
+			spot += n;
+			
+			if(buf == '\r' && n <= 0)
+			{
+				got_message = true;
+			}
         }
 
         if (n < 0) {
