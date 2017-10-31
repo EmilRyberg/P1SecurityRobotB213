@@ -79,11 +79,13 @@ int main(int argc, char *argv[]) {
         char response[1024];
         memset(response, '\0', sizeof response);
 
-        do {
+		int tmp = 1;
+		while (buf != '\r' && n > 0 || tmp==1) {
                 n = read( USB, &buf, 1 );
                 sprintf( &response[spot], "%c", buf );
                 spot += n;
-        } while( buf != '\r' && n > 0);
+				tmp = 0;
+        }
 
         if (n < 0) {
             std::cout << "Error reading: " << strerror(errno) << std::endl;
