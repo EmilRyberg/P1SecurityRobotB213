@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
 			avoidObstacle(vel_pub);
 		}
 		
-		vel_pub.publish(twistMsg);
+		vel_pub.publish(twist_msg);
 
 		loop_rate.sleep();
 	}
@@ -62,7 +62,7 @@ void avoidObstacle(ros::Publisher vel_pub)
 		twist_msg.linear.x = -0.2;
 		twist_msg.angular.z = 0.0;
 		action_countdown--;
-		vel_pub.publish(twistMsg);
+		vel_pub.publish(twist_msg);
 		loop_rate_ptr->sleep();
 	}
 	action_countdown = 50;
@@ -74,7 +74,7 @@ void avoidObstacle(ros::Publisher vel_pub)
 		twist_msg.linear.x = 0.0;
 		twist_msg.angular.z = 0.4;
 		action_countdown--;
-		vel_pub.publish(twistMsg);
+		vel_pub.publish(twist_msg);
 		loop_rate_ptr->sleep();
 	}
 }
