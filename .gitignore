@@ -35,3 +35,7 @@ build/
 devel/
 logs/
 
+
+\.catkin_tools/profiles/default/packages/image_recognition/devel_manifest\.txt
+
+\.catkin_tools/profiles/default/packages/image_recognition/package\.xml
