@@ -45,11 +45,13 @@ int main(int argc, char *argv[]) {
 		}
 
 		cv::Mat cv_image = cv_ptr->image;
+
+		ROS_INFO_STREAM("CV image " << *cv_ptr->image.data);
  
 		ImageScanner scanner;  
 		scanner.set_config(ZBAR_NONE, ZBAR_CFG_ENABLE, 1);  
 		Mat imgout;  
-		cvtColor(cv_image,imgout,CV_GRAY2RGB);  
+		cvtColor(cv_image, imgout, CV_GRAY2RGB);  
 		int width = cv_image.cols;  
 		int height = cv_image.rows;  
 		uchar *raw = (uchar *)cv_image.data;  
@@ -90,7 +92,7 @@ int main(int argc, char *argv[]) {
 	}
 }
 
-void ImageRawCallback(const sensor_msgs::ImageConstPtr dataPtr)
+void ImageRawCallback(const sensor_msgs::ImageConstPtr& dataPtr)
 {
 	ROS_INFO("Got callback");
 	currentFrame = dataPtr;
