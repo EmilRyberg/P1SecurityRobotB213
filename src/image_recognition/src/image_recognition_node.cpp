@@ -13,7 +13,7 @@ using namespace zbar;
 
 sensor_msgs::ImageConstPtr currentFrame;
 
-void ImageRawCallback(const sensor_msgs::ImageConstPtr dataPtr);
+void ImageRawCallback(const sensor_msgs::ImageConstPtr& dataPtr);
 
 int main(int argc, char *argv[]) {
 	ros::init(argc, argv, "image_recognition_node");
