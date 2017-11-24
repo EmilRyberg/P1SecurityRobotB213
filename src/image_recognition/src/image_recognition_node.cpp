@@ -24,7 +24,9 @@ int main(int argc, char *argv[]) {
 
 	while(ros::ok())
 	{
-		if(currentFrame == 0)
+		ros::spinOnce();
+		
+		if(currentFrame == NULL)
 		{
 			ROS_INFO("NO IMAGE DATA");
 			continue;
@@ -82,7 +84,6 @@ int main(int argc, char *argv[]) {
 		image.set_data(NULL, 0);  
 		//waitKey();  
 
-		ros::spinOnce();
 		loop_rate.sleep();
 
 		return 0;
@@ -91,5 +92,6 @@ int main(int argc, char *argv[]) {
 
 void ImageRawCallback(const sensor_msgs::ImageConstPtr dataPtr)
 {
+	ROS_INFO("Got callback");
 	currentFrame = dataPtr;
 }
