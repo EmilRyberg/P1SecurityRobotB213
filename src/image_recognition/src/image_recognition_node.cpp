@@ -26,13 +26,14 @@ int main(int argc, char *argv[]) {
 	{
 		if(currentFrame == 0)
 		{
+			ROS_INFO("NO IMAGE DATA");
 			continue;
 		}
 
 		cv_bridge::CvImagePtr cv_ptr;
 		try
 		{
-			ROS_INFO("Hey there");
+			ROS_INFO("Copyin");
 			cv_ptr = cv_bridge::toCvCopy(currentFrame, sensor_msgs::image_encodings::BGR8);
 		}
 		catch (cv_bridge::Exception& e)
@@ -81,10 +82,10 @@ int main(int argc, char *argv[]) {
 		image.set_data(NULL, 0);  
 		//waitKey();  
 
-		return 0;
-
 		ros::spinOnce();
 		loop_rate.sleep();
+
+		return 0;
 	}
 }
 
