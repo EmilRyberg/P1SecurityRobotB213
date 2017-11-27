@@ -34,4 +34,7 @@
 build/
 devel/
 logs/
+.catkin_tools/
+src/.vscode
+
 
