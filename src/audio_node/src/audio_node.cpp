@@ -20,8 +20,11 @@ int main(int argc, char **argv)
 sleepok(1, nh);
 while (nh.ok()) {
   sc.say("Intruder Detected, A higher authority will be here soon");
-  const char *siren="/home/mads/Downloads/Siren_Noise-KevanGC-1337458893.wav";
+  sleepok(6, nh);
+  const char *siren="Siren_Noise-KevanGC-1337458893.wav";
 
+
+ sc.say("You have proper clearance, move along citizen")
 }
 
 
