@@ -13,6 +13,7 @@ audio_capture
 audio_play
 audio_common_msgs
 sound_play
+std_msgs/Byte
 )
 
 ## System dependencies are found with CMake's conventions
