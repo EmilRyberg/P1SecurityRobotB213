@@ -1,4 +1,4 @@
-#include <sound_play/sound_play.h>
+#include </opt/ros/kinetic/include/sound_play/sound_play.h>
 #include <unistd.h>
 
 //Believe this function is to check the amount of time passed
@@ -16,6 +16,21 @@ int main(int argc, char **argv)
  //giving handles to specific ros nodes to minize writing time
  ros::-NodeHandle- nh;
  sound_play::SoundClient sc;
+// My actual code
+sleepok(1, nh);
+while (nh.ok()) {
+  sc.say("Intruder Detected, A higher authority will be here soon");
+  const char *siren="/home/mads/Downloads/Siren_Noise-KevanGC-1337458893.wav";
+
+}
+
+
+
+
+
+
+
+
 
 //calls the void, makes the robot be standby for 1 second
  sleepok(1, nh);
