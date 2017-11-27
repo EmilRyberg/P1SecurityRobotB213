@@ -35,13 +35,13 @@ int main(int argc, char *argv[]) {
 
 void ImageRawCallback(const sensor_msgs::ImageConstPtr& dataPtr)
 {
-	ROS_INFO("Got callback");
+	//ROS_INFO("Got callback");
 	current_frame = dataPtr;
 
 	cv_bridge::CvImagePtr cv_ptr;
 	try
 	{
-		ROS_INFO_STREAM("Copying data: " << current_frame->data[0]);
+		//ROS_INFO_STREAM("Copying data: " << current_frame->data[0]);
 		cv_ptr = cv_bridge::toCvCopy(current_frame, sensor_msgs::image_encodings::BGR8);
 	}
 	catch (cv_bridge::Exception& e)
@@ -52,15 +52,15 @@ void ImageRawCallback(const sensor_msgs::ImageConstPtr& dataPtr)
 
 	Mat cv_image = cv_ptr->image;
 
-	ROS_INFO_STREAM("CV image " << *cv_ptr->image.data);
+	//ROS_INFO_STREAM("CV image " << *cv_ptr->image.data);
 
 	ImageScanner scanner;  
-	scanner.set_config(ZBAR_NONE, ZBAR_CFG_ENABLE, 1);  
-	//Mat imgout;  
-	//cvtColor(cv_image, imgout, CV_BGR2GRAY);  
-	int width = cv_image.cols;  
-	int height = cv_image.rows;  
-	uchar *raw = (uchar *)cv_image.data;  
+	scanner.set_config(ZBAR_QRCODE, ZBAR_CFG_ENABLE, 1);  
+	Mat imgout;  
+	cvtColor(cv_image, imgout, CV_BGR2GRAY);  
+	int width = imgout.cols;  
+	int height = imgout.rows;  
+	uchar *raw = (uchar *)imgout.data;  
 	// wrap image data  
 	Image image(width, height, "Y800", raw, width * height);  
 	// scan the image for barcodes  
