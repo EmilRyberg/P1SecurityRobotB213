@@ -1,6 +1,7 @@
-#include </opt/ros/kinetic/include/sound_play/sound_play.h>
+#include <sound_play/sound_play.h>
 #include <unistd.h>
 #include "std_msgs/Byte.h"
+#include "ros/ros.h"
 
 //Believe this function is to check the amount of time passed
 void sleepok(int t, ros::NodeHandle &nh)
@@ -22,10 +23,10 @@ void chatterCallback(const std_msgs::Byte::ConstPtr& msg){
 //start of main
 int main(int argc, char **argv)
 {
- ros::init(argc, argv, "sound_play_test");
- 
+ ros::init(argc, argv, "audio_node");
+
  //giving handles to specific ros nodes to minize writing time
- ros::-NodeHandle- nh;
+ ros::NodeHandle nh;
  sound_play::SoundClient sc;
 
  //subscribes to a node
