@@ -107,7 +107,7 @@ void ImageRawCallback(const sensor_msgs::ImageConstPtr &data_ptr)
 	uint8_t human_position = -1;
 
 	// if the area <= 10000, I consider that the there are no object in the image and it's because of the noise, the area is not zero
-	if (area > 10000)
+	if (area > 100000)
 	{
 		found_human = true;
 
