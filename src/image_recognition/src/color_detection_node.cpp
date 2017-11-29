@@ -74,19 +74,19 @@ void ImageRawCallback(const sensor_msgs::ImageConstPtr &data_ptr)
 
 	Mat cv_image = cv_ptr->image;			 //makes a CvImage(Mat) format copy of the picture
 	Mat img_hsv;							 //Declares an empty picturefile of mat format
-	cvtColor(cv_image, img_hsv, CV_BGR2HSV); //Converts the image to grayscale and puts it into imgout
-	int low_h = 180;
-	int high_h = 220;
-	int low_s = 80;
-	int high_s = 200;
-	int low_v = 80;
-	int high_v = 200;
+	cvtColor(cv_image, img_hsv, CV_BGR2HSV); //Converts the image to grayscale and puts it into img_hsv
+	int low_h = 180; //sets the low hue threshold
+	int high_h = 220; //sets the high hue threshold 
+	int low_s = 50; //sets the low saturation threshold
+	int high_s = 200; //sets the high saturation threshold
+	int low_v = 50; //sets the low value threshold
+	int high_v = 200; //sets the high value threshol 
 
-	//Create a black image with the size as the camera output
+	//Creates a black image with the size as the camera output
 	Mat img_lines = Mat::zeros(img_hsv.size(), CV_8UC3);
 	Mat img_thresholded;
-
-	inRange(img_hsv, Scalar(low_h, low_s, low_v), Scalar(high_h, high_s, high_v), img_thresholded); //Threshold the image
+ 	//Thresholds the image with the upper mentioned thresholds
+	inRange(img_hsv, Scalar(low_h, low_s, low_v), Scalar(high_h, high_s, high_v), img_thresholded); 
 
 	//morphological opening (removes small objects from the foreground)
 	erode(img_thresholded, img_thresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
