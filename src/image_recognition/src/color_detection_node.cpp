@@ -61,11 +61,11 @@ void ImageRawCallback(const sensor_msgs::ImageConstPtr &data_ptr)
 	Mat cv_image = cv_ptr->image;			 //makes a CvImage(Mat) format copy of the picture
 	Mat img_hsv;							 //Declares an empty picturefile of mat format
 	cvtColor(cv_image, img_hsv, CV_BGR2HSV); //Converts the image to grayscale and puts it into imgout
-	int iLowH = 170;
-	int iHighH = 179;
-	int iLowS = 150;
+	int iLowH = 0;
+	int iHighH = 40;
+	int iLowS = 100;
 	int iHighS = 255;
-	int iLowV = 60;
+	int iLowV = 70;
 	int iHighV = 255;
 	int iLastX = -1;
 	int iLastY = -1;
@@ -114,7 +114,7 @@ void ImageRawCallback(const sensor_msgs::ImageConstPtr &data_ptr)
 	cv_bridge::CvImage ros_img_thresholded;
 	ros_img_thresholded.header = cv_ptr->header;
 	ros_img_thresholded.encoding = sensor_msgs::image_encodings::BGR8;
-	ros_img_thresholded.image = img_thresholded;
+	ros_img_thresholded.image = threshold_with_lines;
 
 	image_threshold_publisher_ptr->publish(ros_img_thresholded.toImageMsg());
 
