@@ -75,12 +75,12 @@ void ImageRawCallback(const sensor_msgs::ImageConstPtr &data_ptr)
 	Mat cv_image = cv_ptr->image;			 //makes a CvImage(Mat) format copy of the picture
 	Mat img_hsv;							 //Declares an empty picturefile of mat format
 	cvtColor(cv_image, img_hsv, CV_BGR2HSV); //Converts the image to grayscale and puts it into imgout
-	int low_h = 180;
-	int high_h = 220;
-	int low_s = 80;
-	int high_s = 200;
-	int low_v = 80;
-	int high_v = 200;
+	int low_h = 160;
+	int high_h = 240;
+	int low_s = 40;
+	int high_s = 240;
+	int low_v = 40;
+	int high_v = 240;
 
 	//Create a black image with the size as the camera output
 	Mat img_lines = Mat::zeros(img_hsv.size(), CV_8UC3);
