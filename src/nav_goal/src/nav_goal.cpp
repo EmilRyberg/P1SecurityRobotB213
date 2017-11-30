@@ -42,24 +42,25 @@ int main(int argc, char** argv){
   goal.target_pose.header.frame_id = "/map";
   goal.target_pose.header.stamp = ros::Time::now();
 
+  while(ros::ok()){
+      while(got_msg==0){};
+      goal.target_pose.pose.position.x = goal_x;
+      goal.target_pose.pose.position.y = goal_y;
+      goal.target_pose.pose.orientation.w = goal_orientation;
+      got_msg = 0; //clear flag
 
-  goal.target_pose.pose.position.x = goal_x;
-  goal.target_pose.pose.position.y = goal_y;
-  goal.target_pose.pose.orientation.w = goal_orientation;
-  got_msg = 0; //clear flag
+      ROS_INFO("Sending goal");
+      ac.sendGoal(goal);
 
-  ROS_INFO("Sending goal");
-  ac.sendGoal(goal);
+      ac.waitForResult();
 
-  ac.waitForResult();
-
-  if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-    ROS_INFO("Goal reached");
-  else
-    ROS_INFO("Navigation failed!");
+      if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+        ROS_INFO("Goal reached");
+      else
+        ROS_INFO("Navigation failed!");
 
 
-  ros::spin();
-
+      ros::spin();
+  }
   return 0;
 }
