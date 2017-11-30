@@ -76,12 +76,12 @@ void ImageRawCallback(const sensor_msgs::ImageConstPtr &data_ptr)
 	Mat cv_image = cv_ptr->image;			 //makes a CvImage(Mat) format copy of the picture
 	Mat img_hsv;							 //Declares an empty picturefile of mat format
 	cvtColor(cv_image, img_hsv, CV_BGR2HSV); //Converts the image to grayscale and puts it into img_hsv
-	int low_h = 180; //sets the low hue threshold
-	int high_h = 220; //sets the high hue threshold 
-	int low_s = 50; //sets the low saturation threshold
-	int high_s = 200; //sets the high saturation threshold
-	int low_v = 50; //sets the low value threshold
-	int high_v = 200; //sets the high value threshol 
+	int low_h = 140; //sets the low hue threshold
+	int high_h = 160; //sets the high hue threshold 
+	int low_s = 90; //sets the low saturation threshold
+	int high_s = 255; //sets the high saturation threshold
+	int low_v = 80; //sets the low value threshold
+	int high_v = 255; //sets the high value threshold
 
 	//Creates a black image with the size as the camera output
 	Mat img_lines = Mat::zeros(img_hsv.size(), CV_8UC3);
@@ -108,7 +108,7 @@ void ImageRawCallback(const sensor_msgs::ImageConstPtr &data_ptr)
 	uint8_t human_position = -1;
 
 	// if the area <= 10000, I consider that the there are no object in the image and it's because of the noise, the area is not zero
-	if (area > 100000)
+	if (area > 1000000)
 	{
 		found_human = true;
 
