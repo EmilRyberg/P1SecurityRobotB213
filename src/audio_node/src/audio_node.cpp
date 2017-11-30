@@ -22,6 +22,8 @@ int my_counter=msg->data;
     sc_ptr->say("Intruder Detected, A higher authority will be here soon");
     sleepok(6, *nh_ptr);
     sc_ptr->playWave("Siren_Noise-KevanGC-1337458893.wav");
+    sleepok(5, *nh_ptr);
+    sc_ptr->playWave("/opt/ros/kinetic/share/sound_play/sounds/Siren_Noise-KevanGC-1337458893.wav");
   }
 }
 

@@ -8,12 +8,12 @@ int main(int argc, char **argv)
   ros::NodeHandle nh;
   ros::Publisher chatter_pub = nh.advertise<std_msgs::Byte>("audio/play_sound", 1000);
 
-  ros::Rate loop_rate(0.1);
+  ros::Rate loop_rate(15);
 
   while (ros::ok())
   {
     std_msgs::Byte msg;
-    msg.data = 1;
+    msg.data = 0;
 
     chatter_pub.publish(msg);
     ros::spinOnce();
