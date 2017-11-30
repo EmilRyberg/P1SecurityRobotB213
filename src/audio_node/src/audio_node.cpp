@@ -20,8 +20,6 @@ int my_counter=msg->data;
     sc_ptr->say("You have proper clearance, move along citizen");
   } else {
     sc_ptr->say("Intruder Detected, A higher authority will be here soon");
-    sleepok(6, *nh_ptr);
-    sc_ptr->playWave("Siren_Noise-KevanGC-1337458893.wav");
     sleepok(5, *nh_ptr);
     sc_ptr->playWave("/opt/ros/kinetic/share/sound_play/sounds/Siren_Noise-KevanGC-1337458893.wav");
   }
@@ -37,6 +35,7 @@ int main(int argc, char **argv)
  nh_ptr = &nh;
  sound_play::SoundClient sc;
  sc_ptr = &sc;
+
 
  //subscribes to a node
  ros::Subscriber sub = nh.subscribe("audio/play_sound", 1000, chatterCallback);
