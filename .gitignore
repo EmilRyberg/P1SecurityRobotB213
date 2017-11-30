@@ -34,6 +34,10 @@
 build/
 devel/
 logs/
+.catkin_tools/
+.catkin_tools/profiles/
+src/.vscode
+
 
 
 \.catkin_tools/profiles/default/packages/image_recognition/devel_manifest\.txt

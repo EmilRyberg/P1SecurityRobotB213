@@ -1,5 +1,0 @@
-navigation_handler
-/home/ben/Documents/P1SecurityRobotB213/devel/.private/navigation_handler/lib/pkgconfig/navigation_handler.pc /home/ben/Documents/P1SecurityRobotB213/devel/lib/pkgconfig/navigation_handler.pc
-/home/ben/Documents/P1SecurityRobotB213/devel/.private/navigation_handler/lib/navigation_handler/navigation_master /home/ben/Documents/P1SecurityRobotB213/devel/lib/navigation_handler/navigation_master
-/home/ben/Documents/P1SecurityRobotB213/devel/.private/navigation_handler/share/navigation_handler/cmake/navigation_handlerConfig.cmake /home/ben/Documents/P1SecurityRobotB213/devel/share/navigation_handler/cmake/navigation_handlerConfig.cmake
-/home/ben/Documents/P1SecurityRobotB213/devel/.private/navigation_handler/share/navigation_handler/cmake/navigation_handlerConfig-version.cmake /home/ben/Documents/P1SecurityRobotB213/devel/share/navigation_handler/cmake/navigation_handlerConfig-version.cmake
