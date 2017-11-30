@@ -58,9 +58,10 @@ int main(int argc, char *argv[])
 void ImageRawCallback(const sensor_msgs::ImageConstPtr &data_ptr)
 {
 	current_frame = data_ptr; //Making current_frame look into the same location as the data_ptr.
-	cv_bridge::CvImagePtr cv_ptr;
+	cv_bridge::CvImagePtr cv_ptr; //An image pointer
 
-	//Tries to copy the data from the location current_frame is looking into.
+	//Tries to copy the data from the location current_frame is looking into and then assigns the data to
+	//cv_ptr in a format which is compatible with OpenCv.
 	//sensor_msgs::image_encodings::BGR8 Tells the CvImagePtr what format it is working with.
 	try
 	{
