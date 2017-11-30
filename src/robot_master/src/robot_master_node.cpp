@@ -40,11 +40,12 @@ int main(int argc, char *argv[]) {
 				//Do patrol navigation stuff here
 				if(!robot_is_moving)
 				{
+					ROS_INFO("Moving robot");
 					robot_is_moving = true;
 					nav_goal::navigation_goal first_goal;
 					first_goal.goal_x = 1.5;
 					first_goal.goal_y = -5.58;
-					first_goal.orientation = 1.0;
+					first_goal.goal_orientation = 1.0;
 					navigation_publisher.publish(first_goal);
 				}
 				break;
