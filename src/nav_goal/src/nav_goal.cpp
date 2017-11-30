@@ -43,7 +43,10 @@ int main(int argc, char** argv){
   goal.target_pose.header.stamp = ros::Time::now();
 
   while(ros::ok()){
-      while(got_msg==0){};
+      ros::spinOnce();
+      
+      if(got_msg == 0)
+        continue;
       goal.target_pose.pose.position.x = goal_x;
       goal.target_pose.pose.position.y = goal_y;
       goal.target_pose.pose.orientation.w = goal_orientation;
@@ -58,9 +61,6 @@ int main(int argc, char** argv){
         ROS_INFO("Goal reached");
       else
         ROS_INFO("Navigation failed!");
-
-
-      ros::spin();
   }
   return 0;
 }
