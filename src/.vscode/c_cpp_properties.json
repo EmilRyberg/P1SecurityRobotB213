@@ -28,7 +28,6 @@
             "includePath": [
                 "/opt/ros/kinetic/include",
                 "/usr/include/c++/5.4.0",
-                "/usr/include/c++/5.4.0/tr1",
                 "/usr/include/x86_64-linux-gnu/c++/5.4.0",
                 "/usr/local/include",
                 "/usr/lib/clang/3.8.0/include",
@@ -42,6 +41,7 @@
             "intelliSenseMode": "clang-x64",
             "browse": {
                 "path": [
+                    "/opt/ros/kinetic/include",
                     "/usr/include/c++/5.4.0",
                     "/usr/include/x86_64-linux-gnu/c++/5.4.0",
                     "/usr/local/include",
