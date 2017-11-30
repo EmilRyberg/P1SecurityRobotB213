@@ -105,74 +105,74 @@ void ImageRawCallback(const sensor_msgs::ImageConstPtr &data_ptr)
 	double area = image_moments.m00;
 
 	bool found_human = false;
-	uint8_t human_position = -1;
+	uint8_t human_position = -1; //assigns the human position to be -1 since there is no human yet
 
-	// if the area <= 10000, I consider that the there are no object in the image and it's because of the noise, the area is not zero
+	// if the area > 1000000, it is considered that there is a human in the picture
 	if (area > 1000000)
 	{
 		found_human = true;
 
-		//calculate the position of the ball
+		//calculates the position of the human by looking at the moments compared to the area
 		int pos_x = moment_10 / area;
 		int pos_y = moment_01 / area;
 
-		//ROS_INFO_STREAM("Pos: {" << pos_x << "; " << pos_y << "}");
+		//ROS_INFO_STREAM("Pos: {" << pos_x << "; " << pos_y << "}"); //debugging
 
-		if (i_last_x >= 0 && i_last_y >= 0 && pos_x >= 0 && pos_y >= 0)
+		if (i_last_x >= 0 && i_last_y >= 0 && pos_x >= 0 && pos_y >= 0) //If the human has moved draw a line
 		{
 			//Draw a red line from the previous point to the current point
 			line(img_lines, Point(pos_x, pos_y), Point(i_last_x, i_last_y), Scalar(0, 0, 255), 2);
 			circle(img_lines, Point(pos_x, pos_y), 20, Scalar(0, 0, 255), CV_FILLED);
 		}
-
-		i_last_x = pos_x;
+		//after drawing the late the last x and y coordinate is assigned to the current possition
+		i_last_x = pos_x; 
 		i_last_y = pos_y;
-
-		previous_positions.push_back(Point(i_last_x, i_last_y));
-
-		int current_x = i_last_x;
-		int current_y = i_last_y;
+		//puts the current point(the last x and y coordinate) into the vector previous_positions
+		previous_positions.push_back(Point(i_last_x, i_last_y)); 
+		//Assigns the start draw positions to the last position
+		int draw_start_x = i_last_x; 
+		int draw_start_y = i_last_y;
 		for(int i = 0; i < previous_positions.size(); i++)
 		{
 			//Draw a red line from the previous point to the current point
-			line(img_lines, Point(current_x, current_y), previous_positions[i], Scalar(0, 0, 255), 10);
+			line(img_lines, Point(draw_start_x, draw_start_y), previous_positions[i], Scalar(0, 0, 255), 10);
 		}
-
-		if(previous_positions.size() > 10)
+		//Deletes the first segment of the line when more than 10 points have been connected
+		if(previous_positions.size() > 10) 
 		{
 			previous_positions.erase(previous_positions.begin(), previous_positions.begin() + 1);
 		}
-
+		//Assigns the humans position between 0(left) and 100(right) according to the camera
 		human_position = (uint8_t)floor(100.0 * ((float)pos_x / (float)img_lines.size().width));
 		ROS_INFO_STREAM("Human position: " << (int)human_position);
 	}
-	else
+	else //If there are no object clear the list of previous points
 	{
 		previous_positions.clear();
 	}
 
-	cv_image = cv_image + img_lines;
-	Mat threshold_as_bgr;
-	cvtColor(img_thresholded, threshold_as_bgr, CV_GRAY2BGR);
-	Mat threshold_with_lines;
+	cv_image = cv_image + img_lines; //adds the lines of the previous positions to the image
+	Mat threshold_as_bgr; //creates an image file used in next line to create a BGR format of the image with thresholds
+	cvtColor(img_thresholded, threshold_as_bgr, CV_GRAY2BGR); 
+	Mat threshold_with_lines; //Creates an image to have the thresholded image WITH the lines(done next line)
 	addWeighted(threshold_as_bgr, 0.75, img_lines, 1, 0.0, threshold_with_lines);
-	cv_bridge::CvImage ros_img_thresholded;
-	ros_img_thresholded.header = cv_ptr->header;
-	ros_img_thresholded.encoding = sensor_msgs::image_encodings::BGR8;
-	ros_img_thresholded.image = threshold_with_lines;
+	cv_bridge::CvImage ros_img_thresholded; //Creates an empty ROS combatible format picture 
+	ros_img_thresholded.header = cv_ptr->header; //Assigns the header to the same as the header of the original file
+	ros_img_thresholded.encoding = sensor_msgs::image_encodings::BGR8; //Assigns information about the encoding
+	ros_img_thresholded.image = threshold_with_lines; //Inserts the image data from the threshold_with_lines
 
-    cv_bridge::CvImage ros_img_processed;
-	ros_img_processed.header = cv_ptr->header;
-	ros_img_processed.encoding = sensor_msgs::image_encodings::BGR8;
-	ros_img_processed.image = cv_image;
-
+    cv_bridge::CvImage ros_img_processed; //Creates an empty ROS combatible format picture
+	ros_img_processed.header = cv_ptr->header; //Assigns the header to the same as the header of the original file
+	ros_img_processed.encoding = sensor_msgs::image_encodings::BGR8; //Assigns information about the encoding
+	ros_img_processed.image = cv_image; //Inserts the image data from the cv_image(original + lines)
+	//Publishers for the thresholded image with lines and the original image with lines
 	image_threshold_publisher_ptr->publish(ros_img_thresholded.toImageMsg());
 	image_processed_publisher_ptr->publish(ros_img_processed.toImageMsg());
 
-	std_msgs::Bool found_human_msg;
-	found_human_msg.data = found_human;
-	std_msgs::UInt8 human_position_msg;
-	human_position_msg.data = human_position;
-	found_human_publisher_ptr->publish(found_human_msg);
+	std_msgs::Bool found_human_msg;//Creates class for information regarding human detection
+	found_human_msg.data = found_human; //Sets the data for the message to be equal to found human (true/false)
+	std_msgs::UInt8 human_position_msg; //Creates class for the humans position
+	human_position_msg.data = human_position; //Sets the data for the mssage to be equal to the humans position(1-100/left-right)
+	found_human_publisher_ptr->publish(found_human_msg); 
 	human_position_publisher_ptr->publish(human_position_msg);
 }
