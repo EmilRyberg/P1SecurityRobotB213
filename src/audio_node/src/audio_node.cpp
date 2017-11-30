@@ -15,7 +15,7 @@ void sleepok(int t, ros::NodeHandle &nh)
 
 //Function to play sounds according to the message recieved
 void chatterCallback(const std_msgs::Byte::ConstPtr& msg){
-  int my_counter=msg->data;
+int my_counter=msg->data;
   if (my_counter==1) {
     sc_ptr->say("You have proper clearance, move along citizen");
   } else {
