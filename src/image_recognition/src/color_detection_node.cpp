@@ -77,10 +77,10 @@ void ImageRawCallback(const sensor_msgs::ImageConstPtr &data_ptr)
 	cvtColor(cv_image, img_hsv, CV_BGR2HSV); //Converts the image to grayscale and puts it into img_hsv
 	int low_h = 140; //sets the low hue threshold
 	int high_h = 160; //sets the high hue threshold 
-	int low_s = 20; //sets the low saturation threshold
-	int high_s = 220; //sets the high saturation threshold
-	int low_v = 20; //sets the low value threshold
-	int high_v = 220; //sets the high value threshol 
+	int low_s = 90; //sets the low saturation threshold
+	int high_s = 255; //sets the high saturation threshold
+	int low_v = 80; //sets the low value threshold
+	int high_v = 255; //sets the high value threshold
 
 	//Creates a black image with the size as the camera output
 	Mat img_lines = Mat::zeros(img_hsv.size(), CV_8UC3);
