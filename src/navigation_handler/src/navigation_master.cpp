@@ -118,7 +118,14 @@ int main(int argc, char *argv[]) {
         std::cout<<"steer: "<<range(vect.at(0), 1000,2000,-1.0,1.0)<<std::endl;
         std::cout<<"=============="<<std::endl;
         float lin_speed = range(vect.at(1), 1000,2000,-1.0,1.0); //CH2 right stick up-down
-        float ang_speed = range(vect.at(0), 1000,2000,-1.0,1.0); //CH1 right stick left-right
+        float ang_speed = range(vect.at(0), 1000,2000,-1.0,1.0); //CH1 right stick up-down
+        if (lin_speed<0.05 && lin_speed>-0.05){
+            lin_speed = 0;
+        }
+        if (ang_speed<0.05 && ang_speed>-0.05){
+            ang_speed = 0;
+        }
+
 
 		ros::spinOnce();
 
@@ -131,9 +138,9 @@ int main(int argc, char *argv[]) {
 		{
 			avoidObstacle(vel_pub);
 		}
-
-		vel_pub.publish(twist_msg);
-
+    if (ang_speed != 0 || lin_speed != 0){
+		    vel_pub.publish(twist_msg);
+    }
 		loop_rate.sleep();
 	}
 

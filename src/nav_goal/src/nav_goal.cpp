@@ -6,16 +6,8 @@
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
-float goal_x = 0.0;
-float goal_y = 0.0;
-float goal_orientation = 0.0;
-bool result = 0;
-bool got_msg = 0;
-bool done_executing = 0;
-
 move_base_msgs::MoveBaseGoal *goalPtr;
 MoveBaseClient *acPtr;
-
 
 bool navigationCallback(nav_goal::navigation_goal_srv::Request &input, nav_goal::navigation_goal_srv::Response &output){
     ROS_INFO("got msg");
