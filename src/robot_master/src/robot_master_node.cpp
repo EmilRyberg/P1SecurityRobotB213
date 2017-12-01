@@ -3,6 +3,8 @@
 #include <std_msgs/Bool.h>
 #include <std_msgs/UInt8.h>
 #include "nav_goal/navigation_goal.h"
+#include <string>
+#include <sstream>
 
 using namespace std;
 using namespace ros;
@@ -22,6 +24,8 @@ int setup_iterations = 0;
 
 void FoundHumanCallback(const std_msgs::BoolConstPtr &msg);
 void HumanPositionCallback(const std_msgs::UInt8ConstPtr &msg);
+pid_t StartRecordVideo(string video_directory);
+void StopRecordVideo(pid_t PID);
 
 int main(int argc, char *argv[])
 {
@@ -45,22 +49,22 @@ int main(int argc, char *argv[])
 		{
 			switch (robot_mode)
 			{
-				case RobotMode::PATROL:
-					//Do patrol navigation stuff here
-					if (!robot_is_moving)
-					{
-						ROS_INFO("Moving robot");
-						robot_is_moving = true;
-						nav_goal::navigation_goal first_goal;
-						first_goal.goal_x = 1.5;
-						first_goal.goal_y = -5.58;
-						first_goal.goal_orientation = 1.0;
-						navigation_publisher.publish(first_goal);
-						ROS_INFO("Published");
-					}
-					break;
-				case RobotMode::CHASE:
-					break;
+			case RobotMode::PATROL:
+				//Do patrol navigation stuff here
+				if (!robot_is_moving)
+				{
+					ROS_INFO("Moving robot");
+					robot_is_moving = true;
+					nav_goal::navigation_goal first_goal;
+					first_goal.goal_x = 1.5;
+					first_goal.goal_y = -5.58;
+					first_goal.goal_orientation = 1.0;
+					navigation_publisher.publish(first_goal);
+					ROS_INFO("Published");
+				}
+				break;
+			case RobotMode::CHASE:
+				break;
 			}
 		}
 		loop_rate.sleep();
@@ -75,4 +79,24 @@ void FoundHumanCallback(const std_msgs::BoolConstPtr &msg)
 
 void HumanPositionCallback(const std_msgs::UInt8ConstPtr &msg)
 {
+}
+
+pid_t StartRecordVideo(string video_directory)
+{
+	pid_t PID = fork();
+	if (PID == 0)
+	{
+		chdir(video_directory.c_str());
+		execlp("rosrun", "rosrun", "image_view", "video_recorder", "image:=/camera/rgb/image_raw", NULL);
+		ROS_INFO("Recording started");
+		exit(1);
+	}
+	return PID;
+}
+
+void StopRecordVideo(pid_t PID)
+{
+	kill(PID, 15);
+	ROS_INFO("Recording stopped");
+
 }
