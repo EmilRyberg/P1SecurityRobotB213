@@ -143,11 +143,10 @@ add_executable(email_node src/send_email_node.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(email_node
+  Poco
    ${catkin_LIBRARIES}
  )
- target_link_libraries(std_msgs
-    ${catkin_LIBRARIES}
-  )
+
 
 #############
 ## Install ##

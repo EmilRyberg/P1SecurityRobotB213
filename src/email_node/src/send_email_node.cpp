@@ -1,5 +1,5 @@
 #include <iostream>
-#include "std_msgs/Byte.h"
+#include <std_msgs/Byte.h>
 #include <Poco/Net/MailMessage.h>
 #include <Poco/Net/MailRecipient.h>
 #include <Poco/Net/SMTPClientSession.h>
@@ -8,6 +8,8 @@
 using namespace std;
 using namespace Poco::Net;
 using namespace Poco;
+
+ros::NodeHandle *nh_ptr;
 
 void chatterCallback(const std_msgs::Byte::ConstPtr& msg){
   int my_counter=msg->data;
@@ -50,10 +52,10 @@ void chatterCallback(const std_msgs::Byte::ConstPtr& msg){
         }
     }
 
-    
+
 int main(int argc, char **argv)
 {
- ros::init(argc, argv, "audio_node");
+ ros::init(argc, argv, "email_node");
 
  ros::NodeHandle nh;
  nh_ptr = &nh;
