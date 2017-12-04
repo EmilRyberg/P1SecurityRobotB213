@@ -44,6 +44,8 @@ RobotMode robot_mode = RobotMode::PATROL; //Patrol
 bool human_detected_last_frame = false;
 bool human_detected_this_frame = false;
 bool robot_is_moving = false;
+bool waiting_for_authorization = false;
+bool continue_moving = false;
 bool got_to_waypoint = false;
 uint8_t human_current_position = 0;
 int setup_iterations = 0;
@@ -94,9 +96,9 @@ int main(int argc, char *argv[])
 			{
 				case RobotMode::PATROL:
 					//Do patrol navigation stuff here
-					if (!robot_is_moving)
+					if (!robot_is_moving && !waiting_for_authorization)
 					{
-						if(got_to_waypoint)
+						if(got_to_waypoint || continue_moving)
 						{
 							current_navigation_waypoint++;
 							got_to_waypoint = false;
@@ -132,25 +134,43 @@ int main(int argc, char *argv[])
 							ROS_INFO("Published");
 						}
 					}
-					else
-					{
-						if(human_detected_this_frame && human_detected_last_frame)
-						{
-							//Code here to stop robot and ask for ID
 
-							if(qr_code_updated)
+					if(human_detected_this_frame && human_detected_last_frame && !waiting_for_authorization)
+					{
+						ROS_INFO("Human detected");
+						//Code here to stop robot and ask for ID
+						nav_goal::navigation_goal navigation_stop;
+						navigation_stop.goal_x = 0.0f;
+						navigation_stop.goal_y = 0.0f;
+						navigation_stop.goal_orientation = 0.0f;
+						navigation_stop.navigation_abort_override = true;
+						navigation_publisher.publish(navigation_stop);
+						robot_is_moving = false;
+						waiting_for_authorization = true;
+
+						//ask for ID
+					}
+
+					if(waiting_for_authorization)
+					{
+						if(qr_code_updated)
+						{
+							if(qr_code_data == "Authorize")
 							{
-								if(qr_code_data == "Authorized")
-								{
-									//Do authorized stuff here
-								}
-								else
-								{
-									//Start recording and alarm
-								}
+								ROS_INFO("Authorized! :)");
+								waiting_for_authorization = false;
+								continue_moving = true;
+							}
+							else if (qr_code_data != "No data")
+							{
+								ROS_INFO("Intruder detected!!");
+								waiting_for_authorization = false;
+								continue_moving = true;
 							}
 						}
 					}
+
+					
 					break;
 				case RobotMode::CHASE:
 					break;
