@@ -16,9 +16,14 @@ void navigationCallback(const nav_goal::navigation_goal::ConstPtr& input){
     goalPtr->target_pose.pose.position.y = input->goal_y;
     goalPtr->target_pose.pose.orientation.w = input->goal_orientation;
 
-    ROS_INFO("Sending goal");
-    action_clientPtr->sendGoal(*goalPtr);
-    received_new_goal_flag = 1;
+    if (input->navigation_abort_override == 1){
+          ROS_INFO("Aborting");
+          action_clientPtr->cancelGoal();
+    }else{
+          ROS_INFO("Sending goal");
+          action_clientPtr->sendGoal(*goalPtr);
+          received_new_goal_flag = 1;
+   }
 }
 
 int main(int argc, char** argv){
@@ -54,7 +59,7 @@ int main(int argc, char** argv){
                 received_new_goal_flag = 0;
           }else if((action_clientPtr->getState() == actionlib::SimpleClientGoalState::REJECTED || action_clientPtr->getState() ==
                                                             actionlib::SimpleClientGoalState::ABORTED) && received_new_goal_flag == 1){
-                ROS_INFO("Navigation failed!");
+                ROS_INFO("Navigation failed");
                 output.result_of_navigation = 0;
                 pub.publish(output);
                 received_new_goal_flag = 0;
