@@ -74,12 +74,12 @@ void ImageRawCallback(const sensor_msgs::ImageConstPtr &data_ptr)
 	Mat cv_image = cv_ptr->image;			 //makes a CvImage(Mat) format copy of the picture
 	Mat img_hsv;							 //Declares an empty picturefile of mat format
 	cvtColor(cv_image, img_hsv, CV_BGR2HSV); //Converts the image to grayscale and puts it into img_hsv
-	int low_h = 120; //sets the low hue threshold
-	int high_h = 179; //sets the high hue threshold 
-	int low_s = 70; //sets the low saturation threshold
-	int high_s = 255; //sets the high saturation threshold
-	int low_v = 70; //sets the low value threshold
-	int high_v = 255; //sets the high value threshold
+	int low_h = 120; //sets the low hue threshold for pink	
+	int high_h = 179; //sets the high hue threshold for pink
+	int low_s = 70; //sets the low saturation threshold for pink
+	int high_s = 255; //sets the high saturation threshold for pink
+	int low_v = 70; //sets the low value threshold for pink
+	int high_v = 255; //sets the high value threshold for pink
 
 	//Creates a black image with the size as the camera output
 	Mat img_lines = Mat::zeros(img_hsv.size(), CV_8UC3);
