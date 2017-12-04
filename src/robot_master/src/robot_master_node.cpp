@@ -5,6 +5,8 @@
 #include <std_msgs/String.h>
 #include <string>
 #include "nav_goal/navigation_goal.h"
+#include <string>
+#include <sstream>
 
 using namespace std;
 using namespace ros;
@@ -29,6 +31,8 @@ typedef boost::shared_ptr<nav_goal::navigation_goal const> navigation_goalConstP
 
 void FoundHumanCallback(const std_msgs::BoolConstPtr &msg);
 void HumanPositionCallback(const std_msgs::UInt8ConstPtr &msg);
+pid_t StartRecordVideo(string video_directory);
+void StopRecordVideo(pid_t PID);
 void NavigationResultCallback(const navigation_goalConstPtr &msg);
 void QRCodeResultCallback(const std_msgs::StringConstPtr &msg);
 
@@ -110,6 +114,26 @@ void FoundHumanCallback(const std_msgs::BoolConstPtr &msg)
 void HumanPositionCallback(const std_msgs::UInt8ConstPtr &msg)
 {
 	human_current_position = msg->data;
+}
+
+pid_t StartRecordVideo(string video_directory)
+{
+	pid_t PID = fork();
+	if (PID == 0)
+	{
+		chdir(video_directory.c_str());
+		execlp("rosrun", "rosrun", "image_view", "video_recorder", "image:=/camera/rgb/image_raw", NULL);
+		ROS_INFO("Recording started");
+		exit(1);
+	}
+	return PID;
+}
+
+void StopRecordVideo(pid_t PID)
+{
+	kill(PID, 15);
+	ROS_INFO("Recording stopped");
+
 }
 
 void NavigationResultCallback(const navigation_goalConstPtr &msg)
