@@ -1,12 +1,12 @@
 #include "ros/ros.h"
 #include "sensor_msgs/Image.h"
+#include "std_msgs/String.h"
 #include <cv_bridge/cv_bridge.h>
-#include <opencv2/imgproc/imgproc.hpp>
 #include <zbar.h>
+#include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/core/core.hpp> 
 #include <opencv2/highgui/highgui.hpp> 
-#include "opencv2/opencv.hpp"
-#include "std_msgs/String.h"
+#include <opencv2/opencv.hpp>
 
 using namespace cv;
 using namespace std;
@@ -21,9 +21,9 @@ int main(int argc, char *argv[]) {
 	ros::init(argc, argv, "qr_code_node");
 	ros::NodeHandle nh;
 
-	ros::Rate loop_rate(2);
-	ros::Subscriber camera_subscriber = nh.subscribe("camera/rgb/image_raw", 1000, ImageRawCallback);
-	ros::Publisher qr_code_publisher = nh.advertise<std_msgs::String>("qr_reader/qr_code/data", 100);
+	ros::Rate loop_rate(15);
+	ros::Subscriber camera_subscriber = nh.subscribe("camera/rgb/image_raw", 5, ImageRawCallback);
+	ros::Publisher qr_code_publisher = nh.advertise<std_msgs::String>("qr_reader/qr_code/data", 10);
 	qr_code_publisher_ptr = &qr_code_publisher;
 
 	while(ros::ok())
@@ -54,11 +54,10 @@ void ImageRawCallback(const sensor_msgs::ImageConstPtr& data_ptr)
 		return;
 	}
 
-	
-	Mat cv_image = cv_ptr->image; //makes a CvImage(Mat) format copy of the picture
+	Mat cv_image = cv_ptr->image; //makes a CvImage(Mat) type copy of the picture
 	ImageScanner scanner;  
 	scanner.set_config(ZBAR_QRCODE, ZBAR_CFG_ENABLE, 1);  
-	Mat imgout; //Declares an empty picturefile of mat format
+	Mat imgout; //Declares an empty picturefile of Mat type
 	cvtColor(cv_image, imgout, CV_BGR2GRAY); //Converts the image to grayscale and puts it into imgout
 	int width = imgout.cols;  
 	int height = imgout.rows;  

@@ -2,10 +2,9 @@
 #include "sensor_msgs/Image.h"
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <zbar.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include "opencv2/opencv.hpp"
+#include <opencv2/opencv.hpp>
 #include <std_msgs/UInt8.h>
 #include <std_msgs/Bool.h>
 #include <vector>
@@ -13,7 +12,6 @@
 
 using namespace cv;
 using namespace std;
-using namespace zbar;
 using namespace ros;
 
 sensor_msgs::ImageConstPtr current_frame;
@@ -30,8 +28,8 @@ void ImageRawCallback(const sensor_msgs::ImageConstPtr &data_ptr); //declaration
 
 int main(int argc, char *argv[])
 {
-	ros::init(argc, argv, "color_detection_node");
-	ros::NodeHandle nh;
+	init(argc, argv, "color_detection_node");
+	NodeHandle nh;
 
 	Rate loop_rate(15);
 	Subscriber camera_subscriber = nh.subscribe("camera/rgb/image_raw", 1000, ImageRawCallback);
@@ -44,9 +42,9 @@ int main(int argc, char *argv[])
 	image_processed_publisher_ptr = &image_processed_publisher;
 	human_position_publisher_ptr = &human_position_publisher;
 
-	while (ros::ok())
+	while (ok())
 	{
-		ros::spinOnce();
+		spinOnce();
 		loop_rate.sleep();
 	}
 
@@ -90,8 +88,8 @@ void ImageRawCallback(const sensor_msgs::ImageConstPtr &data_ptr)
 	inRange(img_hsv, Scalar(low_h, low_s, low_v), Scalar(high_h, high_s, high_v), img_thresholded); 
 
 	//morphological opening (removes small objects from the foreground)
-	erode(img_thresholded, img_thresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
-	dilate(img_thresholded, img_thresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
+	erode(img_thresholded, img_thresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5))); //Expands dark colour
+	dilate(img_thresholded, img_thresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5))); //Expands light colour
 
 	//morphological closing (removes small holes from the foreground)
 	dilate(img_thresholded, img_thresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
@@ -105,10 +103,10 @@ void ImageRawCallback(const sensor_msgs::ImageConstPtr &data_ptr)
 	double area = image_moments.m00;
 
 	bool found_human = false;
-	uint8_t human_position = -1; //assigns the human position to be -1 since there is no human yet
+	uint8_t human_position = 0; //assigns the human position to be 0 since there is no human yet
 
-	// if the area > 1000000, it is considered that there is a human in the picture
-	if (area > 1000000)
+	// if the area > some value, it is considered that there is a human in the picture
+	if (area > 500000)
 	{
 		found_human = true;
 
@@ -124,27 +122,31 @@ void ImageRawCallback(const sensor_msgs::ImageConstPtr &data_ptr)
 			line(img_lines, Point(pos_x, pos_y), Point(i_last_x, i_last_y), Scalar(0, 0, 255), 2);
 			circle(img_lines, Point(pos_x, pos_y), 20, Scalar(0, 0, 255), CV_FILLED);
 		}
-		//after drawing the late the last x and y coordinate is assigned to the current possition
-		i_last_x = pos_x; 
-		i_last_y = pos_y;
 		//puts the current point(the last x and y coordinate) into the vector previous_positions
 		previous_positions.push_back(Point(i_last_x, i_last_y)); 
 		//Assigns the start draw positions to the last position
 		int draw_start_x = i_last_x; 
 		int draw_start_y = i_last_y;
-		for(int i = 0; i < previous_positions.size(); i++)
+		for(int i = previous_positions.size() - 1; i > 0; i--)
 		{
 			//Draw a red line from the previous point to the current point
 			line(img_lines, Point(draw_start_x, draw_start_y), previous_positions[i], Scalar(0, 0, 255), 10);
+			draw_start_x = previous_positions[i].x;
+			draw_start_y = previous_positions[i].y;
+			
 		}
-		//Deletes the first segment of the line when more than 10 points have been connected
-		if(previous_positions.size() > 10) 
+		//Deletes the first segment of the line when more than x amount of points have been connected
+		if(previous_positions.size() > 20) 
 		{
 			previous_positions.erase(previous_positions.begin(), previous_positions.begin() + 1);
 		}
+
+		//after drawing the late the last x and y coordinate is assigned to the current possition
+		i_last_x = pos_x; 
+		i_last_y = pos_y;
 		//Assigns the humans position between 0(left) and 100(right) according to the camera
-		human_position = (uint8_t)floor(100.0 * ((float)pos_x / (float)img_lines.size().width));
-		ROS_INFO_STREAM("Human position: " << (int)human_position);
+		human_position = (uint8_t)floor(100.0 * ((float)pos_x / (float)img_hsv.size().width));
+		//ROS_INFO_STREAM("Human position: " << (int)human_position);
 	}
 	else //If there are no object clear the list of previous points
 	{
