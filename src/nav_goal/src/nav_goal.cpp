@@ -1,34 +1,24 @@
 #include "ros/ros.h"
 #include <move_base_msgs/MoveBaseAction.h>
 #include <actionlib/client/simple_action_client.h>
-//#include "nav_goal/navigation_goal.h"
-#include "nav_goal/navigation_goal_srv.h"
+#include "nav_goal/navigation_goal.h"
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
 move_base_msgs::MoveBaseGoal *goalPtr;
-MoveBaseClient *acPtr;
+MoveBaseClient *action_clientPtr;
 
-bool navigationCallback(nav_goal::navigation_goal_srv::Request &input, nav_goal::navigation_goal_srv::Response &output){
+bool received_new_goal_flag = 0;
+
+void navigationCallback(const nav_goal::navigation_goal::ConstPtr& input){
     ROS_INFO("got msg");
-    goalPtr->target_pose.pose.position.x = input.goal_x;
-    goalPtr->target_pose.pose.position.y = input.goal_y;
-    goalPtr->target_pose.pose.orientation.w = input.goal_orientation;
+    goalPtr->target_pose.pose.position.x = input->goal_x;
+    goalPtr->target_pose.pose.position.y = input->goal_y;
+    goalPtr->target_pose.pose.orientation.w = input->goal_orientation;
 
     ROS_INFO("Sending goal");
-    acPtr->sendGoal(*goalPtr);
-    acPtr->waitForResult();
-
-    if(acPtr->getState() == actionlib::SimpleClientGoalState::SUCCEEDED){
-      ROS_INFO("Goal reached");
-      output.result = 1;
-    }
-    else{
-      ROS_INFO("Navigation failed!");
-      output.result = 0;
-    }
-
-    return 1;
+    action_clientPtr->sendGoal(*goalPtr);
+    received_new_goal_flag = 1;
 }
 
 int main(int argc, char** argv){
@@ -36,17 +26,16 @@ int main(int argc, char** argv){
 
     ros::NodeHandle n;
 
-    ros::ServiceServer service = n.advertiseService("navigation_goal",navigationCallback);
-
-    ROS_INFO("test");
+    ros::Subscriber sub = n.subscribe("navigation_goal",1,navigationCallback);
+    ros::Publisher pub = n.advertise<nav_goal::navigation_goal>("navigation_result",10);
+    nav_goal::navigation_goal output;
 
     //tell the action client that we want to spin a thread by default
-    MoveBaseClient ac("move_base", true);
-    acPtr = &ac;
-
+    MoveBaseClient action_client("move_base", true);
+    action_clientPtr = &action_client;
     //wait for the action server to come up
-    while(!ac.waitForServer(ros::Duration(5.0))){
-      ROS_INFO("Waiting for the move_base action server to come up");
+    while(!action_client.waitForServer(ros::Duration(5.0))){
+        ROS_INFO("Waiting for the move_base action server to come up");
     }
 
     move_base_msgs::MoveBaseGoal goal;
@@ -55,7 +44,24 @@ int main(int argc, char** argv){
     goal.target_pose.header.frame_id = "/map";
     goal.target_pose.header.stamp = ros::Time::now();
 
-    ros::spin();
+    ros::Rate loop_rate(10);
+
+    while(ros::ok()){
+          if(action_clientPtr->getState() == actionlib::SimpleClientGoalState::SUCCEEDED && received_new_goal_flag == 1){
+                ROS_INFO("Goal reached");
+                output.result_of_navigation = 1;
+                pub.publish(output);
+                received_new_goal_flag = 0;
+          }else if((action_clientPtr->getState() == actionlib::SimpleClientGoalState::REJECTED || action_clientPtr->getState() ==
+                                                            actionlib::SimpleClientGoalState::ABORTED) && received_new_goal_flag == 1){
+                ROS_INFO("Navigation failed!");
+                output.result_of_navigation = 0;
+                pub.publish(output);
+                received_new_goal_flag = 0;
+          }
+          ros::spinOnce();
+          loop_rate.sleep();
+    }
 
     return 0;
 }

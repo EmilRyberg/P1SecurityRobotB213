@@ -49,10 +49,10 @@ find_package(catkin REQUIRED COMPONENTS roscpp move_base_msgs actionlib std_msgs
  )
 
 ## Generate services in the 'srv' folder
- add_service_files(
-   FILES
-   navigation_goal_srv.srv
- )
+ #add_service_files(
+ #  FILES
+ #  navigation_goal_srv.srv
+#)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
