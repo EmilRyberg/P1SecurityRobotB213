@@ -7,6 +7,9 @@
 #include "nav_goal/navigation_goal.h"
 #include <string>
 #include <sstream>
+#include <signal.h>
+#include <vector>
+#include <memory>
 
 using namespace std;
 using namespace ros;
@@ -15,6 +18,26 @@ enum class RobotMode : int
 {
 	PATROL,
 	CHASE
+};
+
+struct NavigationGoal {
+	float x;
+	float y;
+	float orientation;
+
+	NavigationGoal()
+	{
+		x = 0.0;
+		y = 0.0;
+		orientation = 0.0;
+	}
+
+	NavigationGoal(float x, float y, float orientation)
+	{
+		this->x = x;
+		this->y = y;
+		this->orientation = orientation;
+	}
 };
 
 RobotMode robot_mode = RobotMode::PATROL; //Patrol
@@ -26,6 +49,16 @@ uint8_t human_current_position = 0;
 int setup_iterations = 0;
 bool qr_code_updated = false;
 string qr_code_data = "";
+
+vector<NavigationGoal> navigation_waypoints = {
+	 NavigationGoal(0.71f, 4.34f, 1.0f),
+	 NavigationGoal(1.5f, -5.58f, 1.0f),
+	 NavigationGoal(1.44f, -1.61f, 1.0f),
+	 NavigationGoal(1.5f, -5.58f, 1.0f),
+	 NavigationGoal(0.71f, 4.34f, 1.0f)
+	};
+
+int current_navigation_waypoint = 0;
 
 typedef boost::shared_ptr<nav_goal::navigation_goal const> navigation_goalConstPtr;
 
@@ -63,14 +96,41 @@ int main(int argc, char *argv[])
 					//Do patrol navigation stuff here
 					if (!robot_is_moving)
 					{
-						ROS_INFO("Moving robot");
-						robot_is_moving = true;
-						nav_goal::navigation_goal first_goal;
-						first_goal.goal_x = 1.5;
-						first_goal.goal_y = -5.58;
-						first_goal.goal_orientation = 1.0;
-						navigation_publisher.publish(first_goal);
-						ROS_INFO("Published");
+						if(got_to_waypoint)
+						{
+							current_navigation_waypoint++;
+							got_to_waypoint = false;
+
+							if(current_navigation_waypoint > navigation_waypoints.size())
+							{
+								current_navigation_waypoint = 0;
+							}
+
+							NavigationGoal new_goal = navigation_waypoints[current_navigation_waypoint];
+							ROS_INFO("Moving robot");
+							robot_is_moving = true;
+							nav_goal::navigation_goal first_goal;
+							first_goal.goal_x = new_goal.x;
+							first_goal.goal_y = new_goal.y;
+							first_goal.goal_orientation = new_goal.orientation;
+							first_goal.navigation_abort_override = false;
+							navigation_publisher.publish(first_goal);
+							ROS_INFO("Published");
+						}
+						else
+						{
+							//Initial movement
+							NavigationGoal new_goal = navigation_waypoints[0];
+							ROS_INFO("Moving robot");
+							robot_is_moving = true;
+							nav_goal::navigation_goal first_goal;
+							first_goal.goal_x = new_goal.x;
+							first_goal.goal_y = new_goal.y;
+							first_goal.goal_orientation = new_goal.orientation;
+							first_goal.navigation_abort_override = false;
+							navigation_publisher.publish(first_goal);
+							ROS_INFO("Published");
+						}
 					}
 					else
 					{
@@ -138,7 +198,8 @@ void StopRecordVideo(pid_t PID)
 
 void NavigationResultCallback(const navigation_goalConstPtr &msg)
 {
-
+	got_to_waypoint = msg->result_of_navigation;
+	robot_is_moving = false;
 }
 
 void QRCodeResultCallback(const std_msgs::StringConstPtr &msg)

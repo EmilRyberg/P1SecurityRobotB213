@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 	image_threshold_publisher_ptr = &image_threshold_publisher;
 	image_processed_publisher_ptr = &image_processed_publisher;
 	human_position_publisher_ptr = &human_position_publisher;
-
+	
 	while (ok())
 	{
 		spinOnce();
