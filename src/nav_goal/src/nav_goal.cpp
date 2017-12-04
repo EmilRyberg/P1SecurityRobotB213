@@ -5,62 +5,63 @@
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
-float goal_x = 0.0;
-float goal_y = 0.0;
-float goal_orientation = 0.0;
-bool got_msg = 0;
+move_base_msgs::MoveBaseGoal *goalPtr;
+MoveBaseClient *action_clientPtr;
 
-void navigationCallback(const nav_goal::navigation_goal::ConstPtr& msg){
-  ROS_INFO("got msg");
+bool received_new_goal_flag = 0;
 
-  goal_x = msg->goal_x;
-  goal_y = msg->goal_y;
-  goal_orientation = msg->goal_orientation;
-  got_msg = 1;
+void navigationCallback(const nav_goal::navigation_goal::ConstPtr& input){
+    ROS_INFO("got msg");
+    goalPtr->target_pose.pose.position.x = input->goal_x;
+    goalPtr->target_pose.pose.position.y = input->goal_y;
+    goalPtr->target_pose.pose.orientation.w = input->goal_orientation;
+
+    ROS_INFO("Sending goal");
+    action_clientPtr->sendGoal(*goalPtr);
+    received_new_goal_flag = 1;
 }
 
 int main(int argc, char** argv){
-  ros::init(argc, argv, "navigation_translator");
+    ros::init(argc, argv, "navigation_translator");
 
-  ros::NodeHandle n;
+    ros::NodeHandle n;
 
-  ros::Subscriber sub = n.subscribe("navigation_goal",1000,navigationCallback);
+    ros::Subscriber sub = n.subscribe("navigation_goal",1,navigationCallback);
+    ros::Publisher pub = n.advertise<nav_goal::navigation_goal>("navigation_result",10);
+    nav_goal::navigation_goal output;
 
-  ROS_INFO("test");
+    //tell the action client that we want to spin a thread by default
+    MoveBaseClient action_client("move_base", true);
+    action_clientPtr = &action_client;
+    //wait for the action server to come up
+    while(!action_client.waitForServer(ros::Duration(5.0))){
+        ROS_INFO("Waiting for the move_base action server to come up");
+    }
 
-  //tell the action client that we want to spin a thread by default
-  MoveBaseClient ac("move_base", true);
+    move_base_msgs::MoveBaseGoal goal;
+    goalPtr = &goal;
+    //we'll send a goal to the robot to move 1 meter forward
+    goal.target_pose.header.frame_id = "/map";
+    goal.target_pose.header.stamp = ros::Time::now();
 
-  //wait for the action server to come up
-  while(!ac.waitForServer(ros::Duration(5.0))){
-    ROS_INFO("Waiting for the move_base action server to come up");
-  }
+    ros::Rate loop_rate(10);
 
-  move_base_msgs::MoveBaseGoal goal;
+    while(ros::ok()){
+          if(action_clientPtr->getState() == actionlib::SimpleClientGoalState::SUCCEEDED && received_new_goal_flag == 1){
+                ROS_INFO("Goal reached");
+                output.result_of_navigation = 1;
+                pub.publish(output);
+                received_new_goal_flag = 0;
+          }else if((action_clientPtr->getState() == actionlib::SimpleClientGoalState::REJECTED || action_clientPtr->getState() ==
+                                                            actionlib::SimpleClientGoalState::ABORTED) && received_new_goal_flag == 1){
+                ROS_INFO("Navigation failed!");
+                output.result_of_navigation = 0;
+                pub.publish(output);
+                received_new_goal_flag = 0;
+          }
+          ros::spinOnce();
+          loop_rate.sleep();
+    }
 
-  //we'll send a goal to the robot to move 1 meter forward
-  goal.target_pose.header.frame_id = "/map";
-  goal.target_pose.header.stamp = ros::Time::now();
-
-  while(ros::ok()){
-      ros::spinOnce();
-      
-      if(got_msg == 0)
-        continue;
-      goal.target_pose.pose.position.x = goal_x;
-      goal.target_pose.pose.position.y = goal_y;
-      goal.target_pose.pose.orientation.w = goal_orientation;
-      got_msg = 0; //clear flag
-
-      ROS_INFO("Sending goal");
-      ac.sendGoal(goal);
-
-      ac.waitForResult();
-
-      if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-        ROS_INFO("Goal reached");
-      else
-        ROS_INFO("Navigation failed!");
-  }
-  return 0;
+    return 0;
 }
