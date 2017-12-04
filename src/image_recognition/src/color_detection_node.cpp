@@ -95,7 +95,7 @@ void ImageRawCallback(const sensor_msgs::ImageConstPtr &data_ptr)
 	dilate(img_thresholded, img_thresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
 	erode(img_thresholded, img_thresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
 
-	//Calculate the moments of the thresholded image
+	//Finds the moments of the thresholded image and calculates the area through them
 	Moments image_moments = moments(img_thresholded);
 
 	double moment_01 = image_moments.m01;
