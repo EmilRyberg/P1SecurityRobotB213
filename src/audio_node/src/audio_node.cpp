@@ -12,9 +12,15 @@ void sleepok(int t, ros::NodeHandle &nh)
   if (nh_ptr->ok())
       sleep(t);
 }
+void humanDetected(const std_msgs::Byte::ConstPtr& msg){
+int my_counter=msg->data;
+  if (my_counter==1) {
+    sc_ptr->say("Human detected. Please show identification");
+  }
+}
 
 //Function to play sounds according to the message recieved
-void chatterCallback(const std_msgs::Byte::ConstPtr& msg){
+void identificationCheck(const std_msgs::Byte::ConstPtr& msg){
 int my_counter=msg->data;
 //Acts according to the msg recieved
   if (my_counter==1) {
@@ -39,7 +45,8 @@ int main(int argc, char **argv)
  sc_ptr = &sc;
 
  //subscribes to a node (audio_play_sound)
- ros::Subscriber sub = nh.subscribe("audio/play_sound", 1000, chatterCallback);
+ ros::Subscriber sub = nh.subscribe("audio/id", 1000, identificationCheck);
+ ros::Subscriber sub = nh.subscribe("audio/human_detection", 1000, humanDetected);
  ros::spin();
 
 return 0;
