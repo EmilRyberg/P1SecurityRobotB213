@@ -1,7 +1,7 @@
-#include </opt/ros/kinetic/include/sound_play/sound_play.h>
 #include <unistd.h>
-#include "/opt/ros/kinetic/include/std_msgs/Byte.h"
-#include "/opt/ros/kinetic/include/ros/ros.h"
+#include <std_msgs/Byte.h>
+#include <ros/ros.h>
+#include <sound_play/sound_play.h>
 
 ros::NodeHandle *nh_ptr;
 sound_play::SoundClient *sc_ptr;
@@ -14,7 +14,7 @@ void sleepok(int t, ros::NodeHandle &nh)
 }
 
 //Function to play sounds according to the message recieved
-void playSound(const std_msgs::Byte::ConstPtr &msg)
+void playSound(const std_msgs::ByteConstPtr &msg)
 {
   int sound_play = msg->data;
   //Acts according to the msg recieved

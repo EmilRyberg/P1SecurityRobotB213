@@ -3,6 +3,7 @@
 #include <std_msgs/Bool.h>
 #include <std_msgs/UInt8.h>
 #include <std_msgs/String.h>
+#include <std_msgs/Byte.h>
 #include <string>
 #include "nav_goal/navigation_goal.h"
 #include <string>
@@ -82,6 +83,7 @@ int main(int argc, char *argv[])
 	Subscriber navigation_goal_subscriber = nh.subscribe("navigation_result", 1000, NavigationResultCallback);
 	Subscriber qr_code_subscriber = nh.subscribe("qr_reader/qr_code/data", 100, QRCodeResultCallback);
 	Publisher navigation_publisher = nh.advertise<nav_goal::navigation_goal>("navigation_goal", 100);
+	Publisher sound_play_publisher = nh.advertise<std_msgs::Byte>("audio/play_sound", 100);
 
 	while (ros::ok())
 	{
@@ -148,7 +150,9 @@ int main(int argc, char *argv[])
 						robot_is_moving = false;
 						waiting_for_authorization = true;
 
-						//ask for ID
+						std_msgs::Byte sound_play_msg;
+						sound_play_msg.data = 2;
+						sound_play_publisher.publish(sound_play_msg);
 					}
 
 					if(waiting_for_authorization)
@@ -158,12 +162,20 @@ int main(int argc, char *argv[])
 							if(qr_code_data == "Authorize")
 							{
 								ROS_INFO("Authorized! :)");
+								std_msgs::Byte sound_play_msg;
+								sound_play_msg.data = 0;
+								sound_play_publisher.publish(sound_play_msg);
+
 								waiting_for_authorization = false;
 								continue_moving = true;
 							}
 							else if (qr_code_data != "No data")
 							{
 								ROS_INFO("Intruder detected!!");
+								std_msgs::Byte sound_play_msg;
+								sound_play_msg.data = 1;
+								sound_play_publisher.publish(sound_play_msg);
+
 								waiting_for_authorization = false;
 								continue_moving = true;
 							}
