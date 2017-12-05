@@ -129,7 +129,13 @@ int main(int argc, char *argv[])
 						first_goal.goal_orientation = new_goal.orientation;
 						first_goal.navigation_abort_override = false;
 						navigation_publisher.publish(first_goal);
-						ROS_INFO("Published");
+
+						if(current_navigation_waypoint == 3)
+						{
+							std_msgs::Byte sound_play_msg;
+							sound_play_msg.data = 3;
+							sound_play_publisher.publish(sound_play_msg);
+						}
 					}
 					else
 					{
@@ -143,7 +149,6 @@ int main(int argc, char *argv[])
 						first_goal.goal_orientation = new_goal.orientation;
 						first_goal.navigation_abort_override = false;
 						navigation_publisher.publish(first_goal);
-						ROS_INFO("Published");
 					}
 				}
 
@@ -208,7 +213,7 @@ int main(int argc, char *argv[])
 					current_record_time++;
 					int current_record_seconds = (int)floor((float)current_record_time / (float)kUpdateFrequency);
 					
-					if(current_record_time >= kRecordTimeSeconds)
+					if(current_record_seconds >= kRecordTimeSeconds)
 					{
 						StopRecordVideo(video_record_process);
 					}
@@ -288,4 +293,5 @@ void IntruderDetected(const Publisher &sound_play_publisher)
 
 	waiting_for_authorization = false;
 	continue_moving = true;
+	current_wait_time = 0;
 }

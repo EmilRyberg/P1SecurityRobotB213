@@ -1,4 +1,5 @@
 <launch>
+  <node name="soundplay_node" pkg="sound_play" type="soundplay_node.py" />
   <node name="qr_code_node" pkg="image_recognition" type="qr_code_node" />
   <node name="color_detection_node" pkg="image_recognition" type="color_detection_node" />
   <node name="audio_node" pkg="audio_node" type="audio_node" />
