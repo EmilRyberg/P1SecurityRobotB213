@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
 
     ros::Publisher vel_pub = nh.advertise<geometry_msgs::Twist>("cmd_vel_mux/input/navi", 1);
 	twist_msg.linear.x = 0.0;
-    twist_msg.angular.z = 0.0;
+      twist_msg.angular.z = 0.0;
 
     ros::Subscriber bumper_sub = nh.subscribe("mobile_base/events/bumper", 1000, bumperCallback);
 
@@ -97,6 +97,7 @@ int main(int argc, char *argv[]) {
             //std::cout << "Response: " << response << std::endl;
         }
 
+
         std::string str = response;
         std::vector<int> vect;
         std::stringstream ss(str);
@@ -106,6 +107,13 @@ int main(int argc, char *argv[]) {
             if (ss.peek() == ',')
                     ss.ignore();
         }
+        if (vect.at(0) == 0){
+             vect.clear();
+             vect.push_back(1500);
+             vect.push_back(1500);
+             vect.push_back(1000);
+             vect.push_back(1500);
+       }
         /*for (i=0; i< vect.size(); i++){
                 std::cout << vect.at(i)<<std::endl;
         }*/
