@@ -12,6 +12,7 @@
 
 using namespace std;
 using namespace Poco::Net;
+using namespace Poco;
 
 ros::NodeHandle *nh_ptr;
 
@@ -19,9 +20,9 @@ void chatterCallback(const std_msgs::Byte::ConstPtr& msg){
   int intruder_detected=msg->data;
 
   string host = "mail.domain.com";
-  UInt16 port = 25;
-  string user = "ridep1security";
+  string user = "mads";
   string password = "ThomasIsLate";
+  UInt16 port = 25;
   string to = "ridep1security@gmail.com";
   string from = "ridep1security@gmail.com";
   string subject = "Intruder detected";
