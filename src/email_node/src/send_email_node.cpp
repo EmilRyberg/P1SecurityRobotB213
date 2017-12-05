@@ -6,8 +6,8 @@
 #include "curlpp/cURLpp.hpp"
 #include "curlpp/Options.h"
 
-#define FROM    "<sender@example.org>"
-#define TO      "<addressee@example.net>"
+#define FROM    "<TurtleSecurity@gmail.com>"
+#define TO      "<TurtleSecurity@gmail.com>"
 #define CC      "<info@example.org>"
 
 ros::NodeHandle *nh_ptr;
@@ -19,7 +19,7 @@ static const char *payload_text[] = {
   "Cc: " CC " (Another example User)\r\n",
   "Message-ID: <dcd7cb36-11db-487a-9f3a-e652a9458efd@"
   "rfcpedant.example.org>\r\n",
-  "Subject: SMTP example message\r\n",
+  "Subject: Intruder has been detected\r\n",
   "\r\n", /* empty line to divide headers from body, see RFC5322 */
   "The body of the message starts here.\r\n",
   "\r\n",
