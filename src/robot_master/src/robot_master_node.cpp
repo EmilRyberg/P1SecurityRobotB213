@@ -44,6 +44,7 @@ struct NavigationGoal
 };
 
 const int kWaitForIDSeconds = 30;
+const int kRecordTimeSeconds = 60;
 const int kUpdateFrequency = 100;
 
 RobotMode robot_mode = RobotMode::PATROL; //Patrol
@@ -53,11 +54,13 @@ bool robot_is_moving = false;
 bool waiting_for_authorization = false;
 bool continue_moving = false;
 bool got_to_waypoint = false;
+bool recording_video = false;
 uint8_t human_current_position = 0;
 int setup_iterations = 0;
 bool qr_code_updated = false;
 string qr_code_data = "";
 int current_wait_time = 0;
+int current_record_time = 0;
 pid_t video_record_process = 0;
 
 vector<NavigationGoal> navigation_waypoints = {
@@ -161,7 +164,7 @@ int main(int argc, char *argv[])
 					sound_play_msg.data = 2;
 					sound_play_publisher.publish(sound_play_msg);
 
-					if(video_record_process == 0)
+					if(!recording_video)
 					{
 						video_record_process = StartRecordVideo("/tmp");
 					}
@@ -200,6 +203,17 @@ int main(int argc, char *argv[])
 					}
 				}
 
+				if(recording_video)
+				{
+					current_record_time++;
+					int current_record_seconds = (int)floor((float)current_record_time / (float)kUpdateFrequency);
+					
+					if(current_record_time >= kRecordTimeSeconds)
+					{
+						StopRecordVideo(video_record_process);
+					}
+				}
+
 				break;
 			case RobotMode::CHASE:
 				break;
@@ -227,22 +241,30 @@ void HumanPositionCallback(const std_msgs::UInt8ConstPtr &msg)
 
 pid_t StartRecordVideo(string video_directory)
 {
-	pid_t PID = fork();
-	if (PID == 0)
+	if(!recording_video)
 	{
-		chdir(video_directory.c_str());
-		execlp("rosrun", "rosrun", "image_view", "video_recorder", "image:=/camera/rgb/image_raw", NULL);
-		ROS_INFO("Recording started");
-		exit(1);
+		recording_video = true;
+		pid_t PID = fork();
+		if (PID == 0)
+		{
+			chdir(video_directory.c_str());
+			execlp("rosrun", "rosrun", "image_view", "video_recorder", "image:=/camera/rgb/image_raw", NULL);
+			ROS_INFO("Recording started");
+			exit(1);
+		}
+		return PID;
 	}
-	return PID;
 }
 
 void StopRecordVideo(pid_t PID)
 {
-	kill(PID, 2);
-	ROS_INFO("Recording stopped");
-	video_record_process = 0;
+	if(recording_video)
+	{
+		kill(PID, 2);
+		ROS_INFO("Recording stopped");
+		video_record_process = 0;
+		recording_video = false;
+	}
 }
 
 void NavigationResultCallback(const navigation_goalConstPtr &msg)
@@ -266,5 +288,4 @@ void IntruderDetected(const Publisher &sound_play_publisher)
 
 	waiting_for_authorization = false;
 	continue_moving = true;
-	StopRecordVideo(video_record_process);
 }
