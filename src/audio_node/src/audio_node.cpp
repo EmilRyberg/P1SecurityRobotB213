@@ -10,44 +10,45 @@ sound_play::SoundClient *sc_ptr;
 void sleepok(int t, ros::NodeHandle &nh)
 {
   if (nh_ptr->ok())
-      sleep(t);
-}
-void humanDetected(const std_msgs::Byte::ConstPtr& msg){
-int my_counter=msg->data;
-  if (my_counter==1) {
-    sc_ptr->say("Human detected. Please show identification");
-  }
+    sleep(t);
 }
 
 //Function to play sounds according to the message recieved
-void identificationCheck(const std_msgs::Byte::ConstPtr& msg){
-int my_counter=msg->data;
-//Acts according to the msg recieved
-  if (my_counter==1) {
+void playSound(const std_msgs::Byte::ConstPtr &msg)
+{
+  int sound_play = msg->data;
+  //Acts according to the msg recieved
+  if (sound_play == 0)
+  {
     sc_ptr->say("You have proper clearance, move along citizen");
-  } else {
+  }
+  else if (sound_play == 1)
+  {
     sc_ptr->say("Intruder Detected, A higher authority will be here soon");
     // waits 5 seconds via sleepok function
     sleepok(5, *nh_ptr);
     sc_ptr->playWave("/opt/ros/kinetic/share/sound_play/sounds/Siren_Noise-KevanGC-1337458893.wav");
   }
+  else if (sound_play == 2)
+  {
+    sc_ptr->say("Human detected. Please show identification");
+  }
 }
 
-  //start of main
+//start of main
 int main(int argc, char **argv)
 {
- ros::init(argc, argv, "audio_node");
+  ros::init(argc, argv, "audio_node");
 
- //giving handles to specific ros nodes to minize writing time
- ros::NodeHandle nh;
- nh_ptr = &nh;
- sound_play::SoundClient sc;
- sc_ptr = &sc;
+  //giving handles to specific ros nodes to minize writing time
+  ros::NodeHandle nh;
+  nh_ptr = &nh;
+  sound_play::SoundClient sc;
+  sc_ptr = &sc;
 
- //subscribes to a node (audio_play_sound)
- ros::Subscriber sub = nh.subscribe("audio/id", 1000, identificationCheck);
- ros::Subscriber sub = nh.subscribe("audio/human_detection", 1000, humanDetected);
- ros::spin();
+  //subscribes to a node (audio_play_sound)
+  ros::Subscriber sub = nh.subscribe("audio/play_sound", 1000, playSound);
+  ros::spin();
 
-return 0;
+  return 0;
 }
