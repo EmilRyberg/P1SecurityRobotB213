@@ -27,6 +27,7 @@ ros::Publisher vel_pub;
 
 bool received_new_goal_flag = 0;
 bool bumper_override_flag = 0;
+bool got_first_goal_flag = 0;
 int rc_override_flag = 0; //0=normal, 1=override, 2=finished override resume navigation
 float goal_x_buffer, goal_y_buffer, goal_orientation_buffer = 0;
 
@@ -36,6 +37,7 @@ float range(float x, float in_min, float in_max, float out_min, float out_max){
 
 void navigationCallback(const nav_goal::navigation_goal::ConstPtr& input){
     ROS_INFO("got msg");
+    got_first_goal_flag = 1;
     goalPtr->target_pose.pose.position.x = input->goal_x;
     goalPtr->target_pose.pose.position.y = input->goal_y;
     goalPtr->target_pose.pose.orientation.w = input->goal_orientation;
@@ -193,11 +195,11 @@ int main(int argc, char** argv){
           if (ang_speed<0.05 && ang_speed>-0.05){
                 ang_speed = 0;
           }
-          if (lin_speed != 0 || ang_speed != 0){
+          if (lin_speed != 0 || ang_speed != 0 || vect.at(3) > 1700){
                 rc_override_flag = 1;
           }
-          if (lin_speed == 0 && ang_speed == 0 && rc_override_flag == 1){
-                rc_override_flag = 0;
+          if (lin_speed == 0 && ang_speed == 0 && rc_override_flag == 1 && vect.at(3) < 1300){
+                rc_override_flag = 2;
           }
 
           if (rc_override_flag > 0){
@@ -211,10 +213,12 @@ int main(int argc, char** argv){
                 twist_msg.linear.x = 0;
                 twist_msg.angular.z = 0;
                 vel_pub.publish(twist_msg);
-                goalPtr->target_pose.pose.position.x = goal_x_buffer;
-                goalPtr->target_pose.pose.position.y = goal_y_buffer;
-                goalPtr->target_pose.pose.orientation.w = goal_orientation_buffer;
-                //todo send goal, check its not 0
+                if (got_first_goal_flag == 1){
+                      goalPtr->target_pose.pose.position.x = goal_x_buffer;
+                      goalPtr->target_pose.pose.position.y = goal_y_buffer;
+                      goalPtr->target_pose.pose.orientation.w = goal_orientation_buffer;
+                      action_clientPtr->sendGoal(*goalPtr);
+                }
                 rc_override_flag = 0;
           }
 
