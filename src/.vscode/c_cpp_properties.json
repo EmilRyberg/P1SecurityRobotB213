@@ -32,18 +32,22 @@
                 "/usr/local/include",
                 "/usr/lib/clang/3.8.0/include",
                 "/usr/include",
+                "/usr/include/linux",
                 "/usr/include/x86_64-linux-gnu",
+                "/usr/lib/gcc/x86_64-linux-gnu/5/include",
                 "${workspaceRoot}"
             ],
             "defines": [],
             "intelliSenseMode": "clang-x64",
             "browse": {
                 "path": [
+                    "/opt/ros/kinetic/include",
                     "/usr/include/c++/5.4.0",
                     "/usr/include/x86_64-linux-gnu/c++/5.4.0",
                     "/usr/local/include",
                     "/usr/lib/clang/3.8.0/include",
                     "/usr/include",
+                    "/usr/include/linux",
                     "/usr/include/x86_64-linux-gnu",
                     "${workspaceRoot}"
                 ],

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(image_recognition)
+project(robot_master)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
@@ -7,10 +7,10 @@ add_compile_options(-std=c++11)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED sensor_msgs cv_bridge roscpp std_msgs image_transport)
+find_package(catkin REQUIRED roscpp std_msgs message_generation nav_goal)
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+#find_package(Boost REQUIRED COMPONENTS system)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -43,11 +43,10 @@ find_package(catkin REQUIRED sensor_msgs cv_bridge roscpp std_msgs image_transpo
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+ #add_message_files(
+  # FILES
+   #navigation_goal.msg
+ #)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -64,9 +63,9 @@ find_package(catkin REQUIRED sensor_msgs cv_bridge roscpp std_msgs image_transpo
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
+ #generate_messages(
+  # DEPENDENCIES
+   #std_msgs  # Or other packages containing msgs
 # )
 
 ################################################
@@ -100,9 +99,10 @@ find_package(catkin REQUIRED sensor_msgs cv_bridge roscpp std_msgs image_transpo
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES image_recognition
+#  LIBRARIES robot_master
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
+ DEPENDS message_runtime
 )
 
 ###########
@@ -118,7 +118,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/image_recognition.cpp
+#   src/${PROJECT_NAME}/robot_master.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -129,8 +129,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(qr_code_node src/qr_code_node.cpp)
-add_executable(color_detection_node src/color_detection_node.cpp)
+add_executable(robot_master_node src/robot_master_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -143,11 +142,7 @@ add_executable(color_detection_node src/color_detection_node.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(qr_code_node
-   zbar
-   ${catkin_LIBRARIES}
- )
-  target_link_libraries(color_detection_node
+ target_link_libraries(robot_master_node
    ${catkin_LIBRARIES}
  )
 
@@ -191,7 +186,7 @@ add_executable(color_detection_node src/color_detection_node.cpp)
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_image_recognition.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_robot_master.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

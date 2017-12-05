@@ -1,0 +1,6 @@
+audio_node
+/home/mads/Desktop/NEW_RIDE/P1SecurityRobotB213/devel/.private/audio_node/lib/audio_node/audio_node /home/mads/Desktop/NEW_RIDE/P1SecurityRobotB213/devel/lib/audio_node/audio_node
+/home/mads/Desktop/NEW_RIDE/P1SecurityRobotB213/devel/.private/audio_node/lib/audio_node/talker /home/mads/Desktop/NEW_RIDE/P1SecurityRobotB213/devel/lib/audio_node/talker
+/home/mads/Desktop/NEW_RIDE/P1SecurityRobotB213/devel/.private/audio_node/lib/pkgconfig/audio_node.pc /home/mads/Desktop/NEW_RIDE/P1SecurityRobotB213/devel/lib/pkgconfig/audio_node.pc
+/home/mads/Desktop/NEW_RIDE/P1SecurityRobotB213/devel/.private/audio_node/share/audio_node/cmake/audio_nodeConfig.cmake /home/mads/Desktop/NEW_RIDE/P1SecurityRobotB213/devel/share/audio_node/cmake/audio_nodeConfig.cmake
+/home/mads/Desktop/NEW_RIDE/P1SecurityRobotB213/devel/.private/audio_node/share/audio_node/cmake/audio_nodeConfig-version.cmake /home/mads/Desktop/NEW_RIDE/P1SecurityRobotB213/devel/share/audio_node/cmake/audio_nodeConfig-version.cmake
