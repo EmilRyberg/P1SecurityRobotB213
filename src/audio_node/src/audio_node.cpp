@@ -18,20 +18,22 @@ void playSound(const std_msgs::Byte::ConstPtr &msg)
 {
   int sound_play = msg->data;
   //Acts according to the msg recieved
-  if (sound_play == 0)
+  switch (sound_play)
   {
-    sc_ptr->say("You have proper clearance, move along citizen");
-  }
-  else if (sound_play == 1)
-  {
-    sc_ptr->say("Intruder Detected, A higher authority will be here soon");
-    // waits 5 seconds via sleepok function
-    sleepok(5, *nh_ptr);
-    sc_ptr->playWave("/opt/ros/kinetic/share/sound_play/sounds/Siren_Noise-KevanGC-1337458893.wav");
-  }
-  else if (sound_play == 2)
-  {
-    sc_ptr->say("Human detected. Please show identification");
+    case 0:
+      sc_ptr->say("You have proper clearance, move along citizen");
+    break;
+
+    case 1:
+      sc_ptr->say("Intruder Detected, A higher authority will be here soon");
+       // waits 5 seconds via sleepok function
+      sleepok(5, *nh_ptr);
+      sc_ptr->playWave("/opt/ros/kinetic/share/sound_play/sounds/Siren_Noise-KevanGC-1337458893.wav");
+    break;
+
+    case 2:
+      sc_ptr->say("Human detected. Please show identification");
+    break;
   }
 }
 
