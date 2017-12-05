@@ -137,7 +137,7 @@ int main(int argc, char *argv[]) {
 
 		ros::spinOnce();
 
-		if(bumper_state == 0)
+		if(bumper_state == 0 || true)
 		{
 			twist_msg.angular.z = ang_speed;
 			twist_msg.linear.x = lin_speed;
