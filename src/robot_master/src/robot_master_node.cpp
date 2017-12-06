@@ -16,12 +16,6 @@
 using namespace std;
 using namespace ros;
 
-enum class RobotMode : int
-{
-	PATROL,
-	CHASE
-};
-
 struct NavigationGoal
 {
 	float x;
@@ -45,9 +39,9 @@ struct NavigationGoal
 
 const int kWaitForIDSeconds = 30;
 const int kRecordTimeSeconds = 60;
+const int kCooldownSeconds = 120;
 const int kUpdateFrequency = 100;
 
-RobotMode robot_mode = RobotMode::PATROL; //Patrol
 bool human_detected_last_frame = false;
 bool human_detected_this_frame = false;
 bool robot_is_moving = false;
@@ -55,12 +49,14 @@ bool waiting_for_authorization = false;
 bool continue_moving = false;
 bool got_to_waypoint = false;
 bool recording_video = false;
+bool detect_humans = true;
 uint8_t human_current_position = 0;
 int setup_iterations = 0;
 bool qr_code_updated = false;
 string qr_code_data = "";
 int current_wait_time = 0;
 int current_record_time = 0;
+int current_cooldown_time = 0;
 pid_t video_record_process = 0;
 
 vector<NavigationGoal> navigation_waypoints = {
@@ -68,7 +64,8 @@ vector<NavigationGoal> navigation_waypoints = {
 	NavigationGoal(1.5f, -5.58f, 0.1f),
 	NavigationGoal(1.44f, -1.61f, 0.1f),
 	NavigationGoal(1.5f, -5.58f, 0.1f),
-	NavigationGoal(0.71f, 4.34f, 0.1f)};
+	NavigationGoal(0.71f, 4.34f, 0.1f)
+};
 
 int current_navigation_waypoint = 0;
 
@@ -81,6 +78,8 @@ void StopRecordVideo(pid_t PID);
 void NavigationResultCallback(const navigation_goalConstPtr &msg);
 void QRCodeResultCallback(const std_msgs::StringConstPtr &msg);
 void IntruderDetected(const Publisher &sound_play_publisher);
+void HumanAuthorised(const Publisher &sound_play_publisher);
+void MoveToWaypoint(const NavigationGoal &goal, const Publisher &navigation_publisher);
 
 int main(int argc, char *argv[])
 {
@@ -104,54 +103,32 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			switch (robot_mode)
+			//Do patrol navigation stuff here
+			if (!robot_is_moving && !waiting_for_authorization)
 			{
-			case RobotMode::PATROL:
-				//Do patrol navigation stuff here
-				if (!robot_is_moving && !waiting_for_authorization)
+				if (got_to_waypoint || continue_moving)
 				{
-					if (got_to_waypoint || continue_moving)
+					current_navigation_waypoint++;
+					got_to_waypoint = false;
+
+					if (current_navigation_waypoint > navigation_waypoints.size())
 					{
-						current_navigation_waypoint++;
-						got_to_waypoint = false;
-
-						if (current_navigation_waypoint > navigation_waypoints.size())
-						{
-							current_navigation_waypoint = 0;
-						}
-
-						NavigationGoal new_goal = navigation_waypoints[current_navigation_waypoint];
-						ROS_INFO("Moving robot");
-						robot_is_moving = true;
-						nav_goal::navigation_goal first_goal;
-						first_goal.goal_x = new_goal.x;
-						first_goal.goal_y = new_goal.y;
-						first_goal.goal_orientation = new_goal.orientation;
-						first_goal.navigation_abort_override = false;
-						navigation_publisher.publish(first_goal);
-
-						if(current_navigation_waypoint == 3)
-						{
-							std_msgs::Byte sound_play_msg;
-							sound_play_msg.data = 3;
-							sound_play_publisher.publish(sound_play_msg);
-						}
+						current_navigation_waypoint = 0;
 					}
-					else
-					{
-						//Initial movement
-						NavigationGoal new_goal = navigation_waypoints[0];
-						ROS_INFO("Moving robot");
-						robot_is_moving = true;
-						nav_goal::navigation_goal first_goal;
-						first_goal.goal_x = new_goal.x;
-						first_goal.goal_y = new_goal.y;
-						first_goal.goal_orientation = new_goal.orientation;
-						first_goal.navigation_abort_override = false;
-						navigation_publisher.publish(first_goal);
-					}
+
+					NavigationGoal new_goal = navigation_waypoints[current_navigation_waypoint];
+					MoveToWaypoint(new_goal, navigation_publisher);
 				}
+				else
+				{
+					//Initial movement
+					NavigationGoal new_goal = navigation_waypoints[0];
+					MoveToWaypoint(new_goal, navigation_publisher);
+				}
+			}
 
+			if (detect_humans)
+			{
 				if (human_detected_this_frame && human_detected_last_frame && !waiting_for_authorization)
 				{
 					ROS_INFO("Human detected");
@@ -169,59 +146,58 @@ int main(int argc, char *argv[])
 					sound_play_msg.data = 2;
 					sound_play_publisher.publish(sound_play_msg);
 
-					if(!recording_video)
+					if (!recording_video)
 					{
 						video_record_process = StartRecordVideo("/tmp");
 					}
 				}
+			}
+			else
+			{
+				current_cooldown_time++;
+				int current_cooldown_seconds = (int)floor((float)current_cooldown_time / (float)kUpdateFrequency);
 
-				if (waiting_for_authorization)
+				if (current_cooldown_seconds >= kCooldownSeconds)
 				{
-					current_wait_time++;
-					int current_wait_time_seconds = (int)floor((float)current_wait_time / (float)kUpdateFrequency);
+					detect_humans = true;
+					current_cooldown_time = 0;
+				}
+			}
 
-					if (current_wait_time_seconds >= 30)
+			if (waiting_for_authorization)
+			{
+				current_wait_time++;
+				int current_wait_time_seconds = (int)floor((float)current_wait_time / (float)kUpdateFrequency);
+
+				if (current_wait_time_seconds >= 30)
+				{
+					IntruderDetected(sound_play_publisher);
+				}
+				else
+				{
+					if (qr_code_updated)
 					{
-						IntruderDetected(sound_play_publisher);
-					}
-					else
-					{
-						if (qr_code_updated)
+						if (qr_code_data == "Authorize")
 						{
-							if (qr_code_data == "Authorize")
-							{
-								ROS_INFO("Authorized! :)");
-								std_msgs::Byte sound_play_msg;
-								sound_play_msg.data = 0;
-								sound_play_publisher.publish(sound_play_msg);
-
-								waiting_for_authorization = false;
-								continue_moving = true;
-								current_wait_time = 0;
-								StopRecordVideo(video_record_process);
-							}
-							else if (qr_code_data != "No data")
-							{
-								IntruderDetected(sound_play_publisher);
-							}
+							HumanAuthorised(sound_play_publisher);
+						}
+						else if (qr_code_data != "No data")
+						{
+							IntruderDetected(sound_play_publisher);
 						}
 					}
 				}
+			}
 
-				if(recording_video)
+			if (recording_video)
+			{
+				current_record_time++;
+				int current_record_seconds = (int)floor((float)current_record_time / (float)kUpdateFrequency);
+
+				if (current_record_seconds >= kRecordTimeSeconds)
 				{
-					current_record_time++;
-					int current_record_seconds = (int)floor((float)current_record_time / (float)kUpdateFrequency);
-					
-					if(current_record_seconds >= kRecordTimeSeconds)
-					{
-						StopRecordVideo(video_record_process);
-					}
+					StopRecordVideo(video_record_process);
 				}
-
-				break;
-			case RobotMode::CHASE:
-				break;
 			}
 
 			human_detected_last_frame = human_detected_this_frame;
@@ -246,7 +222,7 @@ void HumanPositionCallback(const std_msgs::UInt8ConstPtr &msg)
 
 pid_t StartRecordVideo(string video_directory)
 {
-	if(!recording_video)
+	if (!recording_video)
 	{
 		recording_video = true;
 		pid_t PID = fork();
@@ -263,7 +239,7 @@ pid_t StartRecordVideo(string video_directory)
 
 void StopRecordVideo(pid_t PID)
 {
-	if(recording_video)
+	if (recording_video)
 	{
 		kill(PID, 2);
 		ROS_INFO("Recording stopped");
@@ -294,4 +270,30 @@ void IntruderDetected(const Publisher &sound_play_publisher)
 	waiting_for_authorization = false;
 	continue_moving = true;
 	current_wait_time = 0;
+}
+
+void HumanAuthorised(const Publisher &sound_play_publisher)
+{
+	ROS_INFO("Authorized! :)");
+	std_msgs::Byte sound_play_msg;
+	sound_play_msg.data = 0;
+	sound_play_publisher.publish(sound_play_msg);
+
+	waiting_for_authorization = false;
+	continue_moving = true;
+	current_wait_time = 0;
+	detect_humans = false;
+	StopRecordVideo(video_record_process);
+}
+
+void MoveToWaypoint(const NavigationGoal &goal, const Publisher &navigation_publisher)
+{
+	ROS_INFO("Moving robot");
+	robot_is_moving = true;
+	nav_goal::navigation_goal navigation_goal;
+	navigation_goal.goal_x = goal.x;
+	navigation_goal.goal_y = goal.y;
+	navigation_goal.goal_orientation = goal.orientation;
+	navigation_goal.navigation_abort_override = false;
+	navigation_publisher.publish(navigation_goal);
 }

@@ -33,10 +33,6 @@ void playSound(const std_msgs::ByteConstPtr &msg)
   {
     sc_ptr->say("Human detected. Please show identification");
   }
-  else if (sound_play == 3)
-  {
-    sc_ptr->say("What the fuck am i doing with my life");
-  }
 }
 
 //start of main
