@@ -1,13 +1,17 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(email_node)
 
+set(Poco_DIR "/usr/local/lib/")
+set(Poco_INCLUDE_DIRS "/usr/include/Poco/")
+
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED roscpp std_msgs)
+find_package(Poco REQUIRED COMPONENTS Foundation Net XML Util)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -114,6 +118,7 @@ catkin_package(
 include_directories(
 # include
  ${catkin_INCLUDE_DIRS}
+ ${Poco_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -143,6 +148,7 @@ add_executable(email_node src/send_email_node.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(email_node
+   ${Poco_LIBRARIES}
    ${catkin_LIBRARIES}
  )
 
