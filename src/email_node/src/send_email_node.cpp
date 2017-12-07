@@ -17,7 +17,7 @@ void chatterCallback(const std_msgs::Byte::ConstPtr& msg)
   int intruder_detected=msg->data;
 
   string host = "localhost";
-  UInt16 port = 25;
+  UInt16 port = 1025;
   string user = "ridep1project@gmail.com";
   string password = "ThomasIsLate";
   string to = "ridep1project@gmail.com";
