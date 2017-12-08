@@ -1,3 +1,14 @@
+/* Copyright (C) 2017 Emil Albin Ryberg, Albert Sonne Olesen,
+ * Nikolaj Binder Amtoft, Thomas Deuffic, 
+ * Benedek Gergály, Jonas Brødholt, Mads Riis Thomsen - All Rights Reserved
+ * 
+ * You may use, distribute and modify this code under the
+ * terms of the MIT license.
+ * 
+ * Part of the OpenCV colour detecting code has been inspired by a blogpost by Shermal Fernando
+ * which can be found here: https://opencv-srf.blogspot.dk/2010/09/object-detection-using-color-seperation.html
+ *  */
+
 #include "ros/ros.h"
 #include "sensor_msgs/Image.h"
 #include <cv_bridge/cv_bridge.h>

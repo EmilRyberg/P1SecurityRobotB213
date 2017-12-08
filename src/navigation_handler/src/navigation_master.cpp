@@ -1,3 +1,10 @@
+/* Copyright (C) 2017 Emil Albin Ryberg, Albert Sonne Olesen,
+ * Nikolaj Binder Amtoft, Thomas Deuffic, 
+ * Benedek Gergály, Jonas Brødholt, Mads Riis Thomsen - All Rights Reserved
+ * 
+ * You may use, distribute and modify this code under the
+ * terms of the MIT license. */
+
 #include "ros/ros.h"
 #include "geometry_msgs/Twist.h"
 #include "kobuki_msgs/BumperEvent.h"

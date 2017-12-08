@@ -1,3 +1,10 @@
+/* Copyright (C) 2017 Emil Albin Ryberg, Albert Sonne Olesen,
+ * Nikolaj Binder Amtoft, Thomas Deuffic, 
+ * Benedek Gergály, Jonas Brødholt, Mads Riis Thomsen - All Rights Reserved
+ * 
+ * You may use, distribute and modify this code under the
+ * terms of the MIT license. */
+
 #include <cstdint>
 #include <ros/ros.h>
 #include <std_msgs/Bool.h>
@@ -41,7 +48,7 @@ struct NavigationGoal
 //Constants used for waiting for specific things
 const int kWaitForIDSeconds = 30;
 const int kRecordTimeSeconds = 60;
-const int kCooldownSeconds = 120;
+const int kCooldownSeconds = 30;
 const int kUpdateFrequency = 100;
 
 //Global variables to keep track of the robots' different states and data

@@ -1,3 +1,14 @@
+/* Copyright (C) 2017 Emil Albin Ryberg, Albert Sonne Olesen,
+ * Nikolaj Binder Amtoft, Thomas Deuffic, 
+ * Benedek Gergály, Jonas Brødholt, Mads Riis Thomsen - All Rights Reserved
+ * 
+ * You may use, distribute and modify this code under the
+ * terms of the MIT license.
+ * 
+ * Part of the QR recognition in this code is inspired by a blogpost from Arjun Toshniwal
+ * which can be found here: http://opencv-tutorials-hub.blogspot.dk/2015/12/how-to-scan-barcodes-qr-codes-with-opencv-using-zbar.html
+ *  */
+
 #include "ros/ros.h"
 #include "sensor_msgs/Image.h"
 #include "std_msgs/String.h"
