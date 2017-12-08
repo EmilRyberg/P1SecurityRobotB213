@@ -3,14 +3,14 @@
  * Benedek Gergály, Jonas Brødholt, Mads Riis Thomsen - All Rights Reserved
  * 
  * You may use, distribute and modify this code under the
- * terms of the MIT license. */
+ * terms of the MIT license. 
+ * 
+ * The serial port reading part's author is Stackoverflow user Lunatic999 */
 
-//The serial port reading part's author is Stackoverflow user Lunatic999
 #include "ros/ros.h"
 #include <move_base_msgs/MoveBaseAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include "nav_goal/navigation_goal.h"
-
 #include "geometry_msgs/Twist.h"
 #include "kobuki_msgs/BumperEvent.h"
 #include <vector>
