@@ -34,7 +34,7 @@ ros::NodeHandle *nh_ptr;
 sound_play::SoundClient *sc_ptr;
 
 //Function is to pass an amount of time
-void sleepok(int t, ros::NodeHandle &nh)
+void sleepok(int t)
 {
   if (nh_ptr->ok())
     sleep(t);
@@ -54,7 +54,7 @@ void playSound(const std_msgs::ByteConstPtr &msg)
     case 1:
       sc_ptr->say("Intruder Detected, A higher authority will be here soon");
        // waits 5 seconds via sleepok function
-      sleepok(5, *nh_ptr);
+      sleepok(5);
       sc_ptr->playWave("/opt/ros/kinetic/share/sound_play/sounds/Siren_Noise-KevanGC-1337458893.wav");
     break;
 
